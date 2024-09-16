@@ -1,5 +1,3 @@
-# API echa con Nest.js
+# PF-BACK
 
-## Proyecto Final en la cursada de Henry
-
-Modulo de Back-end
+Este es el repositorio para la aplicación backend del PF.
