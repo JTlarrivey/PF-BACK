@@ -14,6 +14,7 @@ datasource db {
 }
 
 model User {
+
   user_id            Int       @id @default(autoincrement())
   name               String
   email              String    @unique
@@ -109,4 +110,3 @@ model Notification {
   user_id            Int
   content            String
   send_date          DateTime
-}
