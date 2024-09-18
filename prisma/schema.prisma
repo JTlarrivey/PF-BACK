@@ -14,10 +14,99 @@ datasource db {
 }
 
 model User {
-  id Int @id @default(autoincrement())
-  name String
-  email String 
-  password String
-  isAdmin Boolean
- 
+  user_id            Int       @id @default(autoincrement())
+  name               String
+  email              String    @unique
+  password           String
+  isAdmin            Boolean
+  registration_date  DateTime  @default(now())
+  reviews            Review[]
+  bookLists          BookList[]
+  forumComments      ForumComment[]
+  favorites          Favorite[]
+  followers          Follower[] @relation("Following")
+  following          Follower[] @relation("Followed")
+  notifications      Notification[]
+}
+
+model Book {
+  book_id            Int       @id @default(autoincrement())
+  title              String
+  author             String
+  category           String
+  publication_date   DateTime
+  description        String
+  reviews            Review[]
+  bookListBooks      BookListBook[]
+  favorites          Favorite[]
+}
+
+model Review {
+  review_id          Int       @id @default(autoincrement())
+  user               User      @relation(fields: [user_id], references: [user_id])
+  user_id            Int
+  book               Book      @relation(fields: [book_id], references: [book_id])
+  book_id            Int
+  content            String
+  rating             Int
+  review_date        DateTime
+}
+
+model BookList {
+  list_id            Int       @id @default(autoincrement())
+  user               User      @relation(fields: [user_id], references: [user_id])
+  user_id            Int
+  list_name          String
+  creation_date      DateTime
+  books              BookListBook[]
+}
+
+model BookListBook {
+  list_id            Int
+  book_id            Int
+  bookList           BookList  @relation(fields: [list_id], references: [list_id])
+  book               Book      @relation(fields: [book_id], references: [book_id])
+  @@id([list_id, book_id])
+}
+
+model Forum {
+  forum_id           Int       @id @default(autoincrement())
+  topic              String
+  description        String
+  creation_date      DateTime
+  comments           ForumComment[]
+}
+
+model ForumComment {
+  comment_id         Int       @id @default(autoincrement())
+  forum              Forum     @relation(fields: [forum_id], references: [forum_id])
+  forum_id           Int
+  user               User      @relation(fields: [user_id], references: [user_id])
+  user_id            Int
+  content            String
+  comment_date       DateTime
+}
+
+model Favorite {
+  user_id            Int
+  book_id            Int
+  user               User      @relation(fields: [user_id], references: [user_id])
+  book               Book      @relation(fields: [book_id], references: [book_id])
+  @@id([user_id, book_id])
+}
+
+model Follower {
+  follower_user_id   Int
+  followed_user_id   Int
+  follower           User      @relation("Following", fields: [follower_user_id], references: [user_id])
+  followed           User      @relation("Followed", fields: [followed_user_id], references: [user_id])
+  @@id([follower_user_id, followed_user_id])
+}
+
+model Notification {
+  notification_id    Int       @id @default(autoincrement())
+  user               User      @relation(fields: [user_id], references: [user_id])
+  user_id            Int
+  content            String
+  send_date          DateTime
 }
