@@ -19,5 +19,28 @@ model User {
   email String 
   password String
   isAdmin Boolean
- 
+  }
+
+  model Book {
+  id          Int   @id @default(autoincrement())
+  title       String
+  author      String
+  publishedAt DateTime
+  description String?
+  categories  Category[] @relation("BookCategories")
+  reviews     Review[]
+}
+
+model Category {
+  id    String  @id @default(cuid())
+  name  String
+  books Book[]  @relation("BookCategories")
+}
+
+model Review {
+  id        Int    @id @default(autoincrement())
+  userName  String
+  comment   String
+  book      Book   @relation(fields: [bookId], references: [id])
+  bookId    Int
 }
