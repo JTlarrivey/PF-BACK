@@ -6,6 +6,7 @@ CREATE TABLE "User" (
     "password" TEXT NOT NULL,
     "isAdmin" BOOLEAN NOT NULL,
     "registration_date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "photoUrl" TEXT,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("user_id")
 );

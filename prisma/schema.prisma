@@ -28,7 +28,7 @@ model User {
   followers          Follower[] @relation("Following")
   following          Follower[] @relation("Followed")
   notifications      Notification[]
-  photoUrl            String?
+  photoUrl           String?
 
 }
 
