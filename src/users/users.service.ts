@@ -10,34 +10,26 @@ export class UsersService {
         return this.prisma.user.findMany();
     }
 
-    async getUserById(id: number): Promise<User> {
+    async getUserById(id: number): Promise<User | null> {
         return this.prisma.user.findUnique({
-            where: {
-                id
-            }
+            where: { user_id: id },
         });
     }
 
-    async createUsers(data: User): Promise<User> {
-        return this.prisma.user.create({data});
+    async createUser(data: Omit<User, 'user_id'>): Promise<User> {
+        return this.prisma.user.create({ data });
     }
 
-    async updateUser(id: number, data: User): Promise<User> {
+    async updateUser(id: number, data: Partial<Omit<User, 'user_id'>>): Promise<User> {
         return this.prisma.user.update({
-            where:{
-            id
-        },
-        data
-    })
-
+            where: { user_id: id },
+            data,
+        });
     }
 
     async deleteUser(id: number): Promise<User> {
         return this.prisma.user.delete({
-            where: {
-                id
-            }
+            where: { user_id: id },
         });
     }
-
 }
