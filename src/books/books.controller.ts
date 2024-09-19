@@ -1,7 +1,9 @@
 import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, Query } from '@nestjs/common';
 import { BooksService } from './books.service';
 import { Book } from '@prisma/client';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Books')
 @Controller('books')
 export class BooksController {
 

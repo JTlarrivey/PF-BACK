@@ -36,12 +36,18 @@ model Book {
   book_id            Int       @id @default(autoincrement())
   title              String
   author             String
-  category           String
+  category           Category[] @relation("BookCategories")
   publication_date   DateTime
   description        String
   reviews            Review[]
   bookListBooks      BookListBook[]
   favorites          Favorite[]
+}
+
+model Category {
+  id                 Int       @id @default(autoincrement())
+  name               String
+  book               Book[]    @relation("BookCategories")
 }
 
 model Review {
@@ -112,4 +118,6 @@ model Notification {
   user_id            Int
   content            String
   send_date          DateTime
-  }
+}
+
+
