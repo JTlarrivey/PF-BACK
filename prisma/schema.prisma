@@ -28,6 +28,8 @@ model User {
   followers          Follower[] @relation("Following")
   following          Follower[] @relation("Followed")
   notifications      Notification[]
+  photoUrl            String?
+
 }
 
 model Book {
@@ -110,3 +112,4 @@ model Notification {
   user_id            Int
   content            String
   send_date          DateTime
+  }

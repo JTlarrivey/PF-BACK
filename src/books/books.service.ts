@@ -26,33 +26,33 @@ export class BooksService {
     };
   }
 
-  async getBookById(id: number): Promise<Book> {
+  async getBookById(book_id: number): Promise<Book | null> {
     return this.prisma.book.findUnique({
       where: {
-        id
+        book_id
       }
     });
   }
 
-  async createBook(data: Book): Promise<Book> {
+  async createBook(data: Omit<Book, 'book_id'>): Promise<Book> {
     return this.prisma.book.create({
       data
     });
   }
 
-  async updateBook(id: number, data: Book): Promise<Book> {
+  async updateBook(book_id: number, data: Partial<Omit<Book, 'book_id'>>): Promise<Book> {
     return this.prisma.book.update({
       where: {
-        id
+        book_id
       },
       data
     });
   }
 
-  async deleteBook(id: number): Promise<Book> {
+  async deleteBook(book_id: number): Promise<Book> {
     return this.prisma.book.delete({
       where: {
-        id
+        book_id
       }
     });
   }
