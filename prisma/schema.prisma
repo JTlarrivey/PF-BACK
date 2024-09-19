@@ -6,6 +6,8 @@
 
 generator client {
   provider = "prisma-client-js"
+  output = "./../node_modules/.prisma/client"
+
 }
 
 datasource db {
@@ -34,7 +36,7 @@ model User {
 
 model Book {
   book_id            Int       @id @default(autoincrement())
-  title              String
+  title              String    @unique
   author             String
   category           Category[] @relation("BookCategories")
   publication_date   DateTime
@@ -46,7 +48,7 @@ model Book {
 
 model Category {
   id                 Int       @id @default(autoincrement())
-  name               String
+  name               String    @unique
   book               Book[]    @relation("BookCategories")
 }
 

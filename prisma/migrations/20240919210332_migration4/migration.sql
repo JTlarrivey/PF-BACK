@@ -16,11 +16,18 @@ CREATE TABLE "Book" (
     "book_id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
     "author" TEXT NOT NULL,
-    "category" TEXT NOT NULL,
     "publication_date" TIMESTAMP(3) NOT NULL,
     "description" TEXT NOT NULL,
 
     CONSTRAINT "Book_pkey" PRIMARY KEY ("book_id")
+);
+
+-- CreateTable
+CREATE TABLE "Category" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+
+    CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -100,8 +107,26 @@ CREATE TABLE "Notification" (
     CONSTRAINT "Notification_pkey" PRIMARY KEY ("notification_id")
 );
 
+-- CreateTable
+CREATE TABLE "_BookCategories" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Book_title_key" ON "Book"("title");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Category_name_key" ON "Category"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_BookCategories_AB_unique" ON "_BookCategories"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_BookCategories_B_index" ON "_BookCategories"("B");
 
 -- AddForeignKey
 ALTER TABLE "Review" ADD CONSTRAINT "Review_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -138,3 +163,9 @@ ALTER TABLE "Follower" ADD CONSTRAINT "Follower_followed_user_id_fkey" FOREIGN K
 
 -- AddForeignKey
 ALTER TABLE "Notification" ADD CONSTRAINT "Notification_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_BookCategories" ADD CONSTRAINT "_BookCategories_A_fkey" FOREIGN KEY ("A") REFERENCES "Book"("book_id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_BookCategories" ADD CONSTRAINT "_BookCategories_B_fkey" FOREIGN KEY ("B") REFERENCES "Category"("id") ON DELETE CASCADE ON UPDATE CASCADE;
