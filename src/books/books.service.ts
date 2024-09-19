@@ -1,29 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Book } from '@prisma/client';
+import { lastValueFrom } from 'rxjs';
+import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class BooksService {
+  constructor(
+    private prisma: PrismaService,
+    private readonly httpService: HttpService, 
+  ) {}
 
-  constructor(private prisma: PrismaService) {}
+  async getAllBooks(page: number, limit: number): Promise<any> {
+    const searchQuery = 'pride and prejudice'; 
+    const apiUrl = `https://gutendex.com/books/?search=${encodeURIComponent(searchQuery)}&page=${page}&limit=${limit}`;
 
-  async getAllBooks(page: number, limit: number): Promise<{ data: Book[], totalPages: number }> {
-    const skip = (page - 1) * limit;
+    // Realizar la solicitud a la API externa usando Axios a través de HttpService
+    const response = await lastValueFrom(this.httpService.get(apiUrl));
 
-    const [books, totalBooks] = await Promise.all([
-      this.prisma.book.findMany({
-        skip: skip,
-        take: limit,
-      }),
-      this.prisma.book.count(), 
-    ]);
-
-    const totalPages = Math.ceil(totalBooks / limit);
-
-    return {
-      data: books,
-      totalPages,
-    };
+    return response.data;
   }
 
   async getBookById(book_id: number): Promise<Book | null> {
