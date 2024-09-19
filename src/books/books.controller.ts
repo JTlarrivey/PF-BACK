@@ -11,12 +11,14 @@ export class BooksController {
 
   @Get()
   async getAllBooks(
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
-  ) {
-    
-    limit = limit > 50 ? 50 : limit;
-    return this.booksService.getAllBooks(page, limit);
+    @Query('page') page: string = '1',  // Recibe como string por defecto
+    @Query('limit') limit: string = '10',  // Recibe como string por defecto
+  ): Promise<Book[]> {
+    const pageNum = parseInt(page, 10);   // Convertir a número
+    const limitNum = parseInt(limit, 10); // Convertir a número
+    const validPage = isNaN(pageNum) ? 1 : pageNum;
+    const validLimit = isNaN(limitNum) ? 10 : (limitNum > 50 ? 50 : limitNum);
+    return this.booksService.getAllBooks(validPage, validLimit);
   }
 
   @Get(':id')

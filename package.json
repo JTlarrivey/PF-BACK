@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . ",
-    "start:dev": "nest start --watch"
+    "seed": "ts-node prisma/seed.ts",
+    "start:dev": "npm run seed && nest start --watch",
+    "prisma:seed": "ts-node prisma/seed.ts"
   },
   "keywords": [],
   "author": "",
@@ -19,9 +21,11 @@
     "@nestjs/platform-express": "^10.4.3",
     "@nestjs/swagger": "^7.4.2",
     "@prisma/client": "^5.19.1",
+    "axios": "^1.7.7",
     "buffer-to-stream": "^1.0.0",
     "cloudinary": "^2.5.0",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "swagger": "^0.7.5"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.4.5",
@@ -31,6 +35,7 @@
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
-    "prisma": "^5.19.1"
+    "prisma": "^5.19.1",
+    "ts-node": "^10.9.2"
   }
 }
