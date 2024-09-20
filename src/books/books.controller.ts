@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, Que
 import { BooksService } from './books.service';
 import { Book } from '@prisma/client';
 import { ApiTags } from '@nestjs/swagger';
+import { FilterBooksDto } from './books.dto';
 
 @ApiTags('Books')
 @Controller('books')
@@ -28,9 +29,12 @@ export class BooksController {
     return foundBook;
   }
 
-  @Post()
-  async createBook(@Body() data: Book){
-    return this.booksService.createBook(data);
+  @Post('filter')
+  async filterBooks(@Body() filterBooksDto: FilterBooksDto): Promise<Book[]> {
+    const { title, author, page, limit } = filterBooksDto;
+    const pageNum = page ?? 1;
+    const limitNum = limit ?? 10;
+    return this.booksService.filterBooks(title, author, pageNum, limitNum);
   }
 
   @Put(':id')
@@ -50,6 +54,6 @@ export class BooksController {
       throw new NotFoundException('Book does not exist')
     }
   }
-}
+} 
 
 
