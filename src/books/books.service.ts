@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Book } from '@prisma/client';
 
-
 @Injectable()
 export class BooksService {
   constructor(private prisma: PrismaService) {}
@@ -16,11 +15,10 @@ export class BooksService {
       skip: skip,
       take: limit,
       include: {
-        category: true
+        categories: true
       }
     });
   }
-
 
   async getBookById(book_id: number): Promise<Book | null> {
     return this.prisma.book.findUnique({
@@ -68,4 +66,12 @@ export class BooksService {
       take: limit,
     });
   }
-} 
+
+  // Nueva función para actualizar solo la descripción
+  async updateBookDescription(book_id: number, description: string): Promise<Book> {
+    return this.prisma.book.update({
+      where: { book_id },
+      data: { description }, // Actualiza solo la descripción
+    });
+  }
+}

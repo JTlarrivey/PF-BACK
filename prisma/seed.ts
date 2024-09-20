@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-
+    // Upsert de las categorías
     const category1 = await prisma.category.upsert({
         where: { name: 'Sci-Fi' },
         update: {},
@@ -16,6 +16,7 @@ async function main() {
         create: { name: 'Cosmic Horror' },
     });
 
+    // Upsert de los libros
     await prisma.book.upsert({
         where: { title: 'The Martian Chronicles' },
         update: {},
@@ -24,7 +25,8 @@ async function main() {
             author: 'Ray Bradbury',
             publication_date: new Date(),
             description: 'A Sci-Fi anthology by Ray Bradbury.',
-            category: {
+            // Conexión correcta de las categorías (debe ser una lista)
+            categories: {
                 connect: [{ id: category1.id }],
             },
         },
@@ -38,9 +40,10 @@ async function main() {
             author: 'H.P. Lovecraft',
             publication_date: new Date(),
             description: 'A cosmic horror tale by H.P. Lovecraft.',
-            category: {
+            // Conexión correcta de las categorías (debe ser una lista)
+            categories: {
                 connect: [{ id: category2.id }],
-        },
+            },
         },
     });
 }
