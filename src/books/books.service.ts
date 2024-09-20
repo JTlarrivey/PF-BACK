@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { lastValueFrom } from 'rxjs';
-import { HttpService } from '@nestjs/axios';
 import { Book } from '@prisma/client';
 
 
@@ -54,4 +52,20 @@ export class BooksService {
       }
     });
   }
-}
+
+  async filterBooks(title?: string, author?: string, page: number = 1, limit: number = 10): Promise<Book[]> {
+    const skip = (page - 1) * limit;
+    const take = parseInt(limit as any, 10);
+
+    return this.prisma.book.findMany({
+      where: {
+        AND: [
+          title ? { title: { contains: title, mode: 'insensitive' } } : {},
+          author ? { author: { contains: author, mode: 'insensitive' } } : {},
+        ],
+      },
+      skip: skip,
+      take: limit,
+    });
+  }
+} 

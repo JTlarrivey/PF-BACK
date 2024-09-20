@@ -16,6 +16,7 @@ CREATE TABLE "Book" (
     "book_id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
     "author" TEXT NOT NULL,
+    "genre" TEXT NOT NULL,
     "publication_date" TIMESTAMP(3) NOT NULL,
     "description" TEXT NOT NULL,
 
