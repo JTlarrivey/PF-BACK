@@ -24,10 +24,13 @@ export class BooksService {
     return this.prisma.book.findUnique({
       where: {
         book_id
-      }
+      },
+      include: {
+        categories: true, // Incluye las categorías asociadas al libross
+      },
     });
   }
-
+  
   async createBook(data: Omit<Book, 'book_id'>): Promise<Book> {
     return this.prisma.book.create({
       data
