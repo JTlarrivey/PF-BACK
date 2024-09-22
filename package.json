@@ -29,6 +29,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "cloudinary": "^2.5.0",
+    "jsonwebtoken": "^9.0.2",
     "jsw": "^4.0.2",
     "rxjs": "^7.8.1",
     "swagger": "^0.7.5"

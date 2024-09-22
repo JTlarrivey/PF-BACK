@@ -39,12 +39,14 @@ model Book {
   title              String    @unique
   author             String
   categories         Category[] @relation("BookCategories")
-  publication_date   DateTime
+  publication_year   Int
   description        String
   reviews            Review[]
   bookListBooks      BookListBook[]
   favorites          Favorite[]
+  photoUrl           String
 }
+
 model Category {
   id                 Int       @id @default(autoincrement())
   name               String    @unique

@@ -4,48 +4,152 @@ const prisma = new PrismaClient();
 
 async function main() {
     // Upsert de las categorías
-    const category1 = await prisma.category.upsert({
-        where: { name: 'Sci-Fi' },
-        update: {},
-        create: { name: 'Sci-Fi' },
-    });
+    const categories = [
+        'Sci-Fi',
+        'Cosmic Horror',
+        'Fantasy',
+        'Mistery',
+        'Thriller',
+        'Romance',
+        'Dystopian',
+        'Noir Fiction (Hardboiled Fiction)',
+        'Poetry',
+        'Magical Realism',
+        'Drama/Playwriting',
+        'Biography',
+        'Satire',
+    ];
 
-    const category2 = await prisma.category.upsert({
-        where: { name: 'Cosmic Horror' },
-        update: {},
-        create: { name: 'Cosmic Horror' },
-    });
+    const categoryPromises = categories.map(name => 
+        prisma.category.upsert({
+            where: { name },
+            update: {},
+            create: { name },
+        })
+    );
+
+    const categoryResults = await Promise.all(categoryPromises);
+    
+    const [category1, category2, category3, category4, category5, category6, category7, category8, category9, category10, category11, category12, category13] = categoryResults;
 
     // Upsert de los libros
-    await prisma.book.upsert({
-        where: { title: 'The Martian Chronicles' },
-        update: {},
-        create: {
+    const books = [
+        {
             title: 'The Martian Chronicles',
             author: 'Ray Bradbury',
-            publication_date: new Date(),
-            description: 'A Sci-Fi anthology by Ray Bradbury.',
-            // Conexión correcta de las categorías (debe ser una lista)
-            categories: {
-                connect: [{ id: category1.id }],
-            },
+            publication_year: 1950,
+            description: "A Sci-Fi anthology by Ray Bradbury...",
+            categories: [category1.id, category3.id, category4.id, category7.id, category13.id],
+            photoUrl: 'https://mir-s3-cdn-cf.behance.net/project_modules/hd/887b2a24060233.5632fbd9c0ea9.jpg',
         },
-    });
-
-    await prisma.book.upsert({
-        where: { title: 'The Dunwich Horror' },
-        update: {},
-        create: {
+        {
             title: 'The Dunwich Horror',
             author: 'H.P. Lovecraft',
-            publication_date: new Date(),
-            description: 'A cosmic horror tale by H.P. Lovecraft.',
-            // Conexión correcta de las categorías (debe ser una lista)
-            categories: {
-                connect: [{ id: category2.id }],
-            },
+            publication_year: 1929,
+            description: 'A cosmic horror tale by H.P. Lovecraft...',
+            categories: [category2.id, category3.id, category4.id, category5.id, category1.id],
+            photoUrl: 'https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/hostedimages/1484064361i/21679054.jpg',
         },
-    });
+        {
+            title: 'The Murders in the Rue Morge',
+            author: 'Edgar Allan Poe',
+            publication_year: 1841,
+            description: "The Murders in the Rue Morgue is a short story...",
+            categories: [category4.id, category5.id, category8.id],
+            photoUrl: 'https://m.media-amazon.com/images/I/51fI047HN6L._SY780_.jpg',
+        },
+        {
+            title: 'Les Fleurs du Mal',
+            author: 'Charles Baudelaire',
+            publication_year: 1857,
+            description: "The Flowers of Evil is a collection of poems...",
+            categories: [category6.id, category9.id],
+            photoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Fleurs_du_Mal_-_3rd_edition_%281869%29.JPG/220px-Fleurs_du_Mal_-_3rd_edition_%281869%29.JPG',
+        },
+        {
+            title: 'Rhinocéros',
+            author: 'Eugène Ionesco',
+            publication_year: 1959,
+            description: "It is considered one of the most notable works...",
+            categories: [category1.id, category7.id, category11.id, category13.id],
+            photoUrl: 'https://i.pinimg.com/474x/6a/6a/60/6a6a6072da0a64dace67c1efa1cb1b1e.jpg',
+        },
+        {
+            title: 'A hundred years of solitude',
+            author: 'Gabriel Garcia Marquez',
+            publication_year: 1967,
+            description: "One Hundred Years of Solitude is a novel...",
+            categories: [category4.id, category6.id, category10.id],
+            photoUrl: 'https://dwcp78yw3i6ob.cloudfront.net/wp-content/uploads/2016/12/12162813/100_Years_First_Ed_Hi_Res-768x1153.jpg',
+        },
+        {
+            title: 'Ham on Rye',
+            author: 'Charles Bukowski',
+            publication_year: 1982,
+            description: "Ham on Rye is a partially autobiographical novel...",
+            categories: [category4.id, category8.id, category12.id],
+            photoUrl: 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1388195001i/38501.jpg',
+        },
+        {
+            title: 'Our share of the night',
+            author: 'Mariana Enriquez',
+            publication_year: 2019,
+            description: "Heritage, the desire to endure, fatherhood...",
+            categories: [category2.id, category4.id, category5.id, category8.id],
+            photoUrl: 'https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1660429329l/61111034.jpg',
+        },
+        {
+            title: 'The Lord of the Rings',
+            author: 'J. R. R. Tolkien',
+            publication_year: 1954,
+            description: 'The Lord of the Rings is an epic fantasy novel...',
+            categories: [category3.id, category4.id, category6.id],
+            photoUrl: 'https://m.media-amazon.com/images/I/7125+5E40JL._AC_UF1000,1000_QL80_.jpg',
+        },
+        {
+            title: 'The Metamorphosis',
+            author: 'Franz Kafka',
+            publication_year: 1915,
+            description: 'The Metamorphosis is a short novel...',
+            categories: [category1.id, category3.id, category4.id, category7.id, category13.id],
+            photoUrl: 'https://images.cdn1.buscalibre.com/fit-in/360x360/7e/2b/15339a02ebbe3e7dee176487eba3add1.jpg',
+        },
+        {
+            title: 'The Sandman',
+            author: 'E.T.A. Hoffmann',
+            publication_year: 1929,
+            description: "'The Sandman' is a short story by E. T. A. Hoffmann...",
+            categories: [category2.id, category3.id, category4.id, category5.id],
+            photoUrl: 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1177097989i/680596.jpg',
+        },
+        {
+            title: 'The Odissey',
+            author: 'Homer',
+            publication_year: -800,
+            description: "The Odyssey is a Greek epic poem...",
+            categories: [category4.id, category6.id, category9.id, category12.id],
+            photoUrl: 'https://monsieurdidot.com/wp-content/uploads/2020/02/The-Odyssey.jpg',
+        },
+    ];
+
+    const bookPromises = books.map(book => 
+        prisma.book.upsert({
+            where: { title: book.title },
+            update: {},
+            create: {
+                title: book.title,
+                author: book.author,
+                publication_year: book.publication_year,
+                description: book.description,
+                categories: {
+                    connect: book.categories.map(id => ({ id })),
+                },
+                photoUrl: book.photoUrl,
+            },
+        })
+    );
+
+    await Promise.all(bookPromises);
 }
 
 main()
