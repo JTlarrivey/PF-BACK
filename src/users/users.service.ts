@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User } from '@prisma/client';
-import { UserResponseDto } from './userResponseDto';
 import * as bcrypt from 'bcrypt';
 import { updateUserDto } from './updateUsers.dto';
 
@@ -9,19 +8,20 @@ import { updateUserDto } from './updateUsers.dto';
 export class UsersService {
     constructor(private readonly prisma: PrismaService) {}
 
-    async getUsers(): Promise<User[]> {
-        return this.prisma.user.findMany();
+    async getUsers(): Promise<Omit<User, 'password' | 'isAdmin'>[]> {
+        const users = await this.prisma.user.findMany();
+        return users.map(({ password, isAdmin, ...userWithoutSensitiveInfo }) => userWithoutSensitiveInfo);
     }
 
-    async getUserById(id: number): Promise<UserResponseDto | null> {
+    async getUserById(id: number): Promise<Omit<User, 'password' | 'isAdmin'> | null> {
         const user = await this.prisma.user.findUnique({
-        where: { user_id: id },
+            where: { user_id: id },
         });
     
         if (!user) return null;
     
-        const { password, ...userWithoutPassword } = user; // Remover la contraseña
-        return userWithoutPassword;
+        const { password, isAdmin, ...userWithoutSensitiveInfo } = user; 
+        return userWithoutSensitiveInfo;
     }
 
     async getUserActivity(userId: number): Promise<any> {
@@ -49,21 +49,27 @@ export class UsersService {
         return this.prisma.user.create({ data });
     }
 
-    async updateUser(id: number, data: updateUserDto): Promise<User> {
+    async updateUser(id: number, data: updateUserDto): Promise<Omit<User, 'password' | 'isAdmin'>> {
         if (data.password) {
             // Encriptar la nueva contraseña si es que se está actualizando
             data.password = await bcrypt.hash(data.password, 10);
         }
     
-        return this.prisma.user.update({
+        const updatedUser = await this.prisma.user.update({
             where: { user_id: id },
             data,
         });
+    
+        const { password, isAdmin, ...userWithoutSensitiveInfo } = updatedUser; 
+        return userWithoutSensitiveInfo;
     }
 
-    async deleteUser(id: number): Promise<User> {
-        return this.prisma.user.delete({
+    async deleteUser(id: number): Promise<Omit<User, 'password' | 'isAdmin'>> {
+        const deletedUser = await this.prisma.user.delete({
             where: { user_id: id },
         });
+    
+        const { password, isAdmin, ...userWithoutSensitiveInfo } = deletedUser; 
+        return userWithoutSensitiveInfo;
     }
 }
