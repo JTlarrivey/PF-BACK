@@ -3,11 +3,14 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { User } from '@prisma/client';
-import { CreateUserDto } from 'src/users/createUserDto'; // Asegúrate de que el DTO esté importado correctamente
-import { UserResponseDto } from 'src/users/userResponseDto'; // Asegúrate de tener este DTO
+import { CreateUserDto } from 'src/users/createUserDto'; 
+import { UserResponseDto } from 'src/users/userResponseDto'; 
+import { OAuth2Client } from 'google-auth-library'; // Importar cliente de Google
 
 @Injectable()
 export class AuthService {
+  private googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID); // Cliente OAuth de Google
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
@@ -15,7 +18,7 @@ export class AuthService {
 
   async signIn(email: string, password: string) {
     if (!email || !password) {
-      throw new BadRequestException("Email y contraseña requeridos");
+      throw new BadRequestException('Email y contraseña requeridos');
     }
 
     const user = await this.prisma.user.findUnique({
@@ -23,32 +26,31 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new BadRequestException("Credenciales incorrectas");
+      throw new BadRequestException('Credenciales incorrectas');
     }
 
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
-      throw new BadRequestException("Credenciales incorrectas");
+      throw new BadRequestException('Credenciales incorrectas');
     }
 
-    // Agregar name y photoUrl al payload del token
-    const payload = { 
-      id: user.user_id, 
-      email: user.email, 
+    const payload = {
+      id: user.user_id,
+      email: user.email,
       isAdmin: user.isAdmin,
-      name: user.name,         // Agregar el nombre al payload
-      photoUrl: user.photoUrl  // Agregar el photoUrl al payload
+      name: user.name,
+      photoUrl: user.photoUrl,
     };
     const token = this.jwtService.sign(payload);
 
     return {
-      message: "Usuario logueado...",
+      message: 'Usuario logueado...',
       token,
     };
   }
 
   async signUp(userData: CreateUserDto): Promise<UserResponseDto> {
-    const { email, password, name, isAdmin = false, photoUrl } = userData; // Asignar valor por defecto a isAdmin
+    const { email, password, name, isAdmin = false, photoUrl } = userData;
 
     const foundUser = await this.prisma.user.findUnique({
       where: { email },
@@ -66,12 +68,11 @@ export class AuthService {
         password: hashedPassword,
         name,
         isAdmin,
-        registration_date: new Date(), // Asigna la fecha de registro actual
-        photoUrl, // Incluye el campo photoUrl
+        registration_date: new Date(),
+        photoUrl,
       },
     });
 
-    // Devuelve un DTO sin la contraseña
     return {
       user_id: user.user_id,
       name: user.name,
@@ -79,6 +80,44 @@ export class AuthService {
       isAdmin: user.isAdmin,
       photoUrl: user.photoUrl,
       registration_date: user.registration_date,
+    };
+  }
+
+  // Método para manejar el login con Google
+  async googleLogin(req: any) {
+    if (!req.user) {
+      throw new BadRequestException('No user from Google');
+    }
+
+    const { email, name, picture } = req.user;
+    
+    let user = await this.prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+      // Si el usuario no existe, lo creamos en la base de datos
+      user = await this.prisma.user.create({
+        data: {
+          email,
+          name,
+          photoUrl: picture,
+          registration_date: new Date(),
+          password: '', // No se guarda una contraseña, ya que es un usuario de Google
+          isAdmin: false,},
+      });
+    }
+
+    const payload = {
+      id: user.user_id,
+      email: user.email,
+      name: user.name,
+      photoUrl: user.photoUrl,
+    };
+
+    const token = this.jwtService.sign(payload);
+
+    return {
+      message: 'Google login successful',
+      accessToken: token,
     };
   }
 }
