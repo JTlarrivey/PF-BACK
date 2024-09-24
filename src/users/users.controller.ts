@@ -2,6 +2,7 @@ import { Controller, Get, Post, Put, Delete, Body, Param, NotFoundException } fr
 import { UsersService } from './users.service';
 import { User } from '@prisma/client';
 import { ApiTags } from '@nestjs/swagger';
+import { updateUserDto } from './updateUsers.dto';
 
 @ApiTags('Users')
 @Controller('users')
@@ -16,10 +17,16 @@ export class UsersController {
 
     @Get(':id')
     async getUserById(@Param('id') id: string) {
-        const foundUser = await this.usersService.getUserById(Number(id));
-        if (!foundUser) throw new NotFoundException('User not found');
-        return foundUser;
+    const foundUser = await this.usersService.getUserById(Number(id));
+    if (!foundUser) throw new NotFoundException('User not found');
+    return foundUser; // Devolver el DTO sin la contraseña
     }
+
+    @Get(':id/activity')
+    async getUserActivity(@Param('id') id: string) {
+    const userId = Number(id);
+    return this.usersService.getUserActivity(userId);
+}
 
     @Post()
     async createUser(@Body() data: Omit<User, 'user_id'>) {
@@ -27,13 +34,13 @@ export class UsersController {
     }
 
     @Put(':id')
-    async updateUser(@Param('id') id: string, @Body() data: Partial<Omit<User, 'user_id'>>) {
-        try {
-            return await this.usersService.updateUser(Number(id), data);
-        } catch (error) {
-            throw new NotFoundException('User does not exist');
-        }
+    async updateUser(@Param('id') id: string, @Body() data: updateUserDto) {
+    try {
+        return await this.usersService.updateUser(Number(id), data);
+    } catch (error) {
+        throw new NotFoundException('User does not exist');
     }
+}
 
     @Delete(':id')
     async deleteUser(@Param('id') id: string) {
