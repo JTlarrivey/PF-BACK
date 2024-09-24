@@ -88,11 +88,13 @@ export class AuthService {
     if (!req.user) {
       throw new BadRequestException('No user from Google');
     }
-
-    const { email, name, picture } = req.user;
-    
+  
+    // Ajustamos el destructuring de acuerdo con la estructura del objeto
+    const { email, firstName, lastName, picture } = req.user.user;
+    const name = `${firstName} ${lastName}`;
+  
     let user = await this.prisma.user.findUnique({ where: { email } });
-
+  
     if (!user) {
       // Si el usuario no existe, lo creamos en la base de datos
       user = await this.prisma.user.create({
@@ -102,22 +104,23 @@ export class AuthService {
           photoUrl: picture,
           registration_date: new Date(),
           password: '', // No se guarda una contraseña, ya que es un usuario de Google
-          isAdmin: false,},
+          isAdmin: false,
+        },
       });
     }
-
+  
     const payload = {
       id: user.user_id,
       email: user.email,
       name: user.name,
       photoUrl: user.photoUrl,
     };
-
+  
     const token = this.jwtService.sign(payload);
-
+  
     return {
       message: 'Google login successful',
       accessToken: token,
     };
   }
-}
+}  

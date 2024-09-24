@@ -15,7 +15,6 @@ export class AuthController {
     try {
       return await this.authService.signIn(email, password);
     } catch (error) {
-      // Manejo de errores
       console.error('Error during sign in:', error);
       throw new Error('Failed to sign in');
     }
@@ -26,7 +25,6 @@ export class AuthController {
     try {
       return await this.authService.signUp(userData);
     } catch (error) {
-      // Manejo de errores
       console.error('Error during sign up:', error);
       throw new Error('Failed to sign up');
     }
@@ -39,17 +37,19 @@ export class AuthController {
     // Este método no necesita hacer nada, ya que el guard se encarga del flujo
   }
 
-  @Get('google/callback')
+  @Get('callback/google')
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
     try {
-      // Aquí gestionas el callback una vez que Google autentica al usuario.
+      console.log('User from Google:', req.user);  // Verifica si req.user contiene datos
       const { accessToken } = await this.authService.googleLogin(req);
-      return res.redirect(`http://localhost:3000?token=${accessToken}`);
+      
+      // Redirige a una URL válida de tu frontend con el token como query param
+      return res.redirect(`http://localhost:3000/dashboard?token=${accessToken}`);
     } catch (error) {
-      // Manejo de errores en la redirección
       console.error('Error during Google authentication callback:', error);
       return res.status(500).send('An error occurred during authentication');
     }
   }
+
 }
