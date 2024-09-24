@@ -1,0 +1,26 @@
+services:
+  nestapp:
+    build: ./
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      - booknity
+
+
+  booknity:
+    image: "postgres"
+    environment:
+      POSTGRES_DB: booknity
+      POSTGRES_HOST: booknity
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: contrapostgre
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+    pgdata:
+    
+
+

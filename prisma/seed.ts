@@ -3,6 +3,8 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
+    const tableExists = await prisma.$queryRaw`SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'Category')`;
+    if (tableExists[0].exists) {
     // Upsert de las categorías
     const categories = [
         'Sci-Fi',
@@ -20,7 +22,7 @@ async function main() {
         'Satire',
     ];
 
-    const categoryPromises = categories.map(name => 
+    const categoryPromises =  categories.map(name => 
         prisma.category.upsert({
             where: { name },
             update: {},
@@ -160,3 +162,4 @@ main()
     .finally(async () => {
         await prisma.$disconnect();
     });
+}
