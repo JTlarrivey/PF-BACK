@@ -17,6 +17,10 @@ export class CreateUserDto {
   @IsOptional()
   isAdmin?: boolean; 
 
+  @IsBoolean()
+  @IsOptional()
+  isConfirmed?: boolean;
+
   @IsOptional()
   @IsString()
   photoUrl?: string; 
