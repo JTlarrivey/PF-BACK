@@ -8,7 +8,8 @@
     "lint": "eslint . ",
     "seed": "ts-node prisma/seed.ts",
     "start:dev": "npm run seed && nest start --watch",
-    "prisma:seed": "ts-node prisma/seed.ts"
+    "prisma:seed": "ts-node prisma/seed.ts",
+    "build": "nest build"
   },
   "keywords": [],
   "author": "",
