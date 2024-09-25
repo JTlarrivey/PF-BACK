@@ -73,5 +73,5 @@ export class AuthController {
       console.error('Error during Google authentication callback:', error);
       return res.status(500).send('An error occurred during authentication');
     }
-  }
+  };
 }
