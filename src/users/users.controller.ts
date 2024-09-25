@@ -19,7 +19,7 @@ export class UsersController {
     async getUserById(@Param('id') id: string) {
     const foundUser = await this.usersService.getUserById(Number(id));
     if (!foundUser) throw new NotFoundException('User not found');
-    return foundUser; // Devolver el DTO sin la contraseña
+    return foundUser; 
     }
 
     @Get(':id/activity')
