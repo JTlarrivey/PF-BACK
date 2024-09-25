@@ -3,7 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { User } from '@prisma/client';
-import { CreateUserDto } from 'src/users/createUserDto'; 
+import { CreateUserDto } from 'src/users/CreateUserDto'; 
 import { UserResponseDto } from 'src/users/userResponseDto'; 
 import { OAuth2Client } from 'google-auth-library'; // Importar cliente de Google
 import * as nodemailer from 'nodemailer'; // Importar nodemailer

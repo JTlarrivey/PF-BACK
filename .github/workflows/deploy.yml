@@ -1,0 +1,37 @@
+name: Deploy NestJS App
+
+on:
+  push:
+    branches:
+      - main # Puedes cambiar "main" por la rama que quieras usar
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20.14.0' # O la versión que estés usando
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Build the project
+        run: npm run build
+
+      - name: Deploy to Render
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }} # Asegúrate de haber configurado este secret en GitHub
+        run: |
+          curl -X POST -H "Authorization: Bearer $RENDER_API_KEY" \
+          -H "Content-Type: application/json" \
+          -d '{"serviceId": "<crq3dvij1k6c738anfi0>"}' \
+          https://api.render.com/v1/services/<crq3dvij1k6c738anfi0>/deploys

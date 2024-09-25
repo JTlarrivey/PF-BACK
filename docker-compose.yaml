@@ -13,7 +13,7 @@ services:
     image: "postgres"
     environment:
       POSTGRES_DB: booknity
-      POSTGRES_HOST: booknity
+      POSTGRES_HOST: 'booknity'
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: contrapostgre
     volumes:
