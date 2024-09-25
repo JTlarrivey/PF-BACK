@@ -151,40 +151,50 @@ export class AuthService {
   // Método para manejar el login con Google
   async googleLogin(req: any) {
     if (!req.user) {
-      throw new BadRequestException('No user from Google');
+        throw new BadRequestException('No user from Google');
     }
 
-    const { email, firstName, lastName, picture } = req.user.user;
-    const name = `${firstName} ${lastName}`;
+    // Verifica la estructura de req.user.user
+    console.log('User from Google:', req.user.user);
+    
+    const { email, given_name, family_name, picture, displayName } = req.user.user; // Asegúrate de que estos campos son correctos
+    const name = displayName || `${given_name} ${family_name}`; // Usa displayName si está disponible
 
+    // Busca el usuario en la base de datos
     let user = await this.prisma.user.findUnique({ where: { email } });
 
+    // Si el usuario no existe, créalo
     if (!user) {
-      user = await this.prisma.user.create({
-        data: {
-          email,
-          name,
-          photoUrl: picture,
-          registration_date: new Date(),
-          password: '', // Para usuarios de Google, la contraseña puede estar vacía
-          isAdmin: false,
-          isConfirmed: true, // Usuarios de Google se consideran confirmados automáticamente
-        },
-      });
+        user = await this.prisma.user.create({
+            data: {
+                email,
+                name,
+                photoUrl: picture,
+                registration_date: new Date(),
+                password: '', // La contraseña puede estar vacía para usuarios de Google
+                isAdmin: false,
+                isConfirmed: true, // Se considera confirmado automáticamente
+            },
+        });
     }
 
+    // Crea el payload para el token
     const payload = {
-      id: user.user_id,
-      email: user.email,
-      name: user.name,
-      photoUrl: user.photoUrl,
+        id: user.user_id,
+        email: user.email,
+        name: user.name,
+        photoUrl: user.photoUrl,
     };
 
+    // Genera el token JWT
     const token = this.jwtService.sign(payload);
 
+    // Devuelve el mensaje y el token en la respuesta
     return {
-      message: 'Google login successful',
-      accessToken: token,
+        message: 'Google login successful',
+        accessToken: token, // Asegúrate de que la clave sea 'accessToken'
     };
-  }
+}
+
+
 }

@@ -42,25 +42,34 @@ export class AuthController {
     }
   }
 
+  // Endpoint para iniciar la autenticación con Google
   @Get('google')
   @UseGuards(AuthGuard('google'))
   async googleAuth(@Req() req: Request) {
-    // Inicia la autenticación con Google
     // Este método no necesita hacer nada, ya que el guard se encarga del flujo
   }
 
+  // Callback de Google, maneja la respuesta después de la autenticación
   @Get('callback/google')
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
     try {
       console.log('User from Google:', req.user);  // Verifica si req.user contiene datos
       const { accessToken } = await this.authService.googleLogin(req);
-      
-      // Devuelve el token como respuesta JSON
+
+      // Envía el token a tu cliente (aquí es donde podrías hacer un POST si lo deseas)
       return res.json({ accessToken }); // Envía el token en la respuesta
     } catch (error) {
       console.error('Error during Google authentication callback:', error);
       return res.status(500).send('An error occurred during authentication');
     }
+  }
+  
+  // Aquí puedes tener otro método POST si decides enviar el token a un endpoint específico
+  @Post('token')
+  async sendToken(@Body() tokenData: { accessToken: string }) {
+    // Maneja el token enviado desde el cliente (por ejemplo, almacenamiento, verificación, etc.)
+    console.log('Token received from client:', tokenData.accessToken);
+    return { message: 'Token received successfully' };
   }
 }
