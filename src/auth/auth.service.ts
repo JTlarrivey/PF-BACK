@@ -154,11 +154,10 @@ export class AuthService {
         throw new BadRequestException('No user from Google');
     }
 
-    // Verifica la estructura de req.user.user
     console.log('User from Google:', req.user.user);
     
-    const { email, given_name, family_name, picture, displayName } = req.user.user; // Asegúrate de que estos campos son correctos
-    const name = displayName || `${given_name} ${family_name}`; // Usa displayName si está disponible
+    const { email, given_name, family_name, picture, displayName } = req.user.user;
+    const name = displayName || `${given_name} ${family_name}`;
 
     // Busca el usuario en la base de datos
     let user = await this.prisma.user.findUnique({ where: { email } });
@@ -173,7 +172,7 @@ export class AuthService {
                 registration_date: new Date(),
                 password: '', // La contraseña puede estar vacía para usuarios de Google
                 isAdmin: false,
-                isConfirmed: true, // Se considera confirmado automáticamente
+                isConfirmed: true,
             },
         });
     }
@@ -193,6 +192,11 @@ export class AuthService {
     return {
         message: 'Google login successful',
         accessToken: token, // Asegúrate de que la clave sea 'accessToken'
+        user: { // Devuelve también el usuario si es necesario
+            email: user.email,
+            name: user.name,
+            photoUrl: user.photoUrl,
+        },
     };
 }
 

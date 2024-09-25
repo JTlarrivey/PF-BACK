@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post, Req, Res, UseGuards, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/users/createUserDto';
 import { LoginUserDto } from 'src/users/loginUserDto';
@@ -50,20 +59,19 @@ export class AuthController {
   }
 
   // Callback de Google, maneja la respuesta después de la autenticación
- // Callback de Google
-@Get('callback/google')
-@UseGuards(AuthGuard('google'))
-async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
+  // Callback de Google
+  @Get('callback/google')
+  @UseGuards(AuthGuard('google'))
+  async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
     try {
-        console.log('User from Google:', req.user);
-        const { accessToken } = await this.authService.googleLogin(req);
-        
-        // Redirige al usuario a tu aplicación frontend
-        return res.redirect('http://localhost/auth/google'); // Cambia esta URL según donde quieras redirigir
-    } catch (error) {
-        console.error('Error during Google authentication callback:', error);
-        return res.status(500).send('An error occurred during authentication');
-    }
-}
+      console.log('User from Google:', req.user);
+      const { accessToken } = await this.authService.googleLogin(req);
 
+      // Redirige al frontend y pasa el token en la URL o como cookie
+      return res.redirect(`http://localhost/auth?token=${accessToken}`);
+    } catch (error) {
+      console.error('Error during Google authentication callback:', error);
+      return res.status(500).send('An error occurred during authentication');
+    }
+  }
 }
