@@ -6,7 +6,7 @@ import { User } from '@prisma/client';
 import { UserResponseDto } from 'src/users/userResponseDto'; 
 import { OAuth2Client } from 'google-auth-library'; // Importar cliente de Google
 import * as nodemailer from 'nodemailer'; // Importar nodemailer
-import { CreateUserDto } from 'src/users/CreateUserDto';
+import { CreateUserDto } from 'src/users/createuserDto';
 
 @Injectable()
 export class AuthService {
