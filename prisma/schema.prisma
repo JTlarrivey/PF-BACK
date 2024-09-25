@@ -33,6 +33,7 @@ model User {
   following          Follower[] @relation("Followed")
   notifications      Notification[]
   photoUrl           String?
+  isConfirmed     Boolean  @default(false) 
 
 }
 

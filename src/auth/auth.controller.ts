@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res, UseGuards, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/users/createUserDto';
 import { LoginUserDto } from 'src/users/loginUserDto';
@@ -30,6 +30,18 @@ export class AuthController {
     }
   }
 
+  // Nuevo endpoint para confirmar el correo electrónico
+  @Get('confirm')
+  async confirmEmail(@Query('token') token: string, @Res() res: Response) {
+    try {
+      await this.authService.confirmEmail(token);
+      return res.status(200).send('Correo confirmado con éxito');
+    } catch (error) {
+      console.error('Error confirming email:', error);
+      return res.status(400).send('Error al confirmar el correo');
+    }
+  }
+
   @Get('google')
   @UseGuards(AuthGuard('google'))
   async googleAuth(@Req() req: Request) {
@@ -44,12 +56,11 @@ export class AuthController {
       console.log('User from Google:', req.user);  // Verifica si req.user contiene datos
       const { accessToken } = await this.authService.googleLogin(req);
       
-      // Redirige a una URL válida de tu frontend con el token como query param
-      return res.redirect(`http://localhost:3000/dashboard?token=${accessToken}`);
+      // Devuelve el token como respuesta JSON
+      return res.json({ accessToken }); // Envía el token en la respuesta
     } catch (error) {
       console.error('Error during Google authentication callback:', error);
       return res.status(500).send('An error occurred during authentication');
     }
   }
-
 }
