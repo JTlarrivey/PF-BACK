@@ -15,7 +15,7 @@ export class CreateUserDto {
 
   @IsBoolean()
   @IsOptional()
-  isAdmin?: boolean; // Hazlo requerido o asegúrate de manejarlo en el servicio
+  isAdmin?: boolean; 
 
   @IsOptional()
   @IsString()
