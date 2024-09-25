@@ -7,6 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . ",
     "seed": "ts-node prisma/seed.ts",
+    "start": "npx prisma migrate deploy && node dist/main.js",
     "start:dev": "npm run seed && nest start --watch",
     "prisma:seed": "ts-node prisma/seed.ts",
     "build": "nest build"
