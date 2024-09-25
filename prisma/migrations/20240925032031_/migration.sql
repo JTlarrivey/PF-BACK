@@ -7,6 +7,7 @@ CREATE TABLE "User" (
     "isAdmin" BOOLEAN NOT NULL,
     "registration_date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "photoUrl" TEXT,
+    "isConfirmed" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("user_id")
 );
@@ -109,6 +110,17 @@ CREATE TABLE "Notification" (
 );
 
 -- CreateTable
+CREATE TABLE "Report" (
+    "report_id" SERIAL NOT NULL,
+    "user_id" INTEGER NOT NULL,
+    "review_id" INTEGER NOT NULL,
+    "reason" TEXT NOT NULL,
+    "report_date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Report_pkey" PRIMARY KEY ("report_id")
+);
+
+-- CreateTable
 CREATE TABLE "_BookCategories" (
     "A" INTEGER NOT NULL,
     "B" INTEGER NOT NULL
@@ -164,6 +176,12 @@ ALTER TABLE "Follower" ADD CONSTRAINT "Follower_followed_user_id_fkey" FOREIGN K
 
 -- AddForeignKey
 ALTER TABLE "Notification" ADD CONSTRAINT "Notification_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Report" ADD CONSTRAINT "Report_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Report" ADD CONSTRAINT "Report_review_id_fkey" FOREIGN KEY ("review_id") REFERENCES "Review"("review_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_BookCategories" ADD CONSTRAINT "_BookCategories_A_fkey" FOREIGN KEY ("A") REFERENCES "Book"("book_id") ON DELETE CASCADE ON UPDATE CASCADE;
