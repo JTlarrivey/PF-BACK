@@ -3,15 +3,15 @@
   "version": "1.0.0",
   "description": "Modulo de Back-end",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint . ",
-    "seed": "ts-node prisma/seed.ts",
-    "start": "npx prisma migrate deploy && npx prisma db seed && node dist/main.js",
-    "start:dev": "npm run seed && nest start --watch",
-    "prisma:seed": "ts-node prisma/seed.ts",
-    "build": "nest build"
-  },
+"scripts": {
+  "test": "echo \"Error: no test specified\" && exit 1",
+  "lint": "eslint . ",
+  "seed": "ts-node prisma/seed.ts",
+  "start": "npx prisma migrate deploy && npm run seed && node dist/main.js",
+  "start:dev": "npm run seed && nest start --watch",
+  "build": "nest build"
+},
+
   "keywords": [],
   "author": "",
   "license": "ISC",
