@@ -9,10 +9,9 @@ import {
   Query,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginUserDto } from 'src/users/loginUserDto';
 import { AuthGuard } from '@nestjs/passport';
 import { Request, Response } from 'express';
-import { CreateUserDto } from 'src/users/createuserDto';
+import { CreateUserDto, LoginUserDto } from 'src/users/user.dto';
 import { ApiTags } from '@nestjs/swagger';
 
 
