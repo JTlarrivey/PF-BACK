@@ -45,23 +45,22 @@ export class AuthController {
   @Get('confirm')
   async confirmEmail(@Query('token') token: string, @Res() res: Response) {
     try {
-      await this.authService.confirmEmail(token);
-      return res.status(200).send('Correo confirmado con éxito');
+      const { token: jwtToken } = await this.authService.confirmEmail(token);
+
+      // Redirigir al frontend con el token para iniciar sesión automáticamente
+      return res.redirect(`http://localhost/auth?token=${jwtToken}`);
     } catch (error) {
       console.error('Error confirming email:', error);
       return res.status(400).send('Error al confirmar el correo');
     }
   }
 
-  // Endpoint para iniciar la autenticación con Google
   @Get('google')
   @UseGuards(AuthGuard('google'))
   async googleAuth(@Req() req: Request) {
     // Este método no necesita hacer nada, ya que el guard se encarga del flujo
   }
 
-  // Callback de Google, maneja la respuesta después de la autenticación
-  // Callback de Google
   @Get('callback/google')
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
@@ -69,11 +68,11 @@ export class AuthController {
       console.log('User from Google:', req.user);
       const { accessToken } = await this.authService.googleLogin(req);
 
-      // Redirige al frontend y pasa el token en la URL o como cookie
+      // Redirige al frontend con el token en la URL
       return res.redirect(`http://localhost/auth?token=${accessToken}`);
     } catch (error) {
       console.error('Error during Google authentication callback:', error);
-      return res.status(500).send('An error occurred during authentication');
+      return res.status(400).send('Error en la autenticación con Google');
     }
-  };
+  }
 }

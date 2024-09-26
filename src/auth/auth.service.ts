@@ -122,6 +122,7 @@ export class AuthService {
     };
   }
 
+  // Modificado para iniciar sesión automáticamente tras confirmar el correo
   async confirmEmail(token: string) {
     try {
       const decoded = this.jwtService.verify(token);
@@ -137,12 +138,29 @@ export class AuthService {
         throw new BadRequestException('Este correo ya ha sido confirmado');
       }
 
+      // Confirmar el correo del usuario
       await this.prisma.user.update({
         where: { email },
         data: { isConfirmed: true },
       });
 
-      return { message: 'Correo confirmado con éxito' };
+      // Crear el payload para el token
+      const payload = {
+        id: user.user_id,
+        email: user.email,
+        isAdmin: user.isAdmin,
+        name: user.name,
+        photoUrl: user.photoUrl,
+      };
+
+      // Generar el token JWT
+      const jwtToken = this.jwtService.sign(payload);
+
+      // Retornar el mensaje de éxito y el token
+      return {
+        message: 'Correo confirmado con éxito',
+        token: jwtToken, // Retornar el token para que inicie sesión automáticamente
+      };
     } catch (error) {
       throw new BadRequestException('Token inválido o expirado');
     }
@@ -154,8 +172,6 @@ export class AuthService {
         throw new BadRequestException('No user from Google');
     }
 
-    console.log('User from Google:', req.user.user);
-    
     const { email, given_name, family_name, picture, displayName } = req.user.user;
     const name = displayName || `${given_name} ${family_name}`;
 
@@ -188,17 +204,14 @@ export class AuthService {
     // Genera el token JWT
     const token = this.jwtService.sign(payload);
 
-    // Devuelve el mensaje y el token en la respuesta
     return {
-        message: 'Google login successful',
-        accessToken: token, // Asegúrate de que la clave sea 'accessToken'
-        user: { // Devuelve también el usuario si es necesario
-            email: user.email,
-            name: user.name,
-            photoUrl: user.photoUrl,
-        },
+      message: 'Google login successful',
+      accessToken: token,
+      user: {
+        email: user.email,
+        name: user.name,
+        photoUrl: user.photoUrl,
+      },
     };
-}
-
-
+  }
 }
