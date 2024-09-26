@@ -28,6 +28,10 @@ export class CreateUserDto {
   @MinLength(8)
   @MaxLength(15)
   password: string;
+
+  @IsBoolean()
+  @IsOptional()
+  isConfirmed?: boolean;
   
   @IsOptional()
   @IsString()
