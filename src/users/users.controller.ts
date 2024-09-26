@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, NotFoundException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from '@prisma/client';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { updateUserDto } from './updateUsers.dto';
 
 @ApiTags('Users')
@@ -9,19 +9,22 @@ import { updateUserDto } from './updateUsers.dto';
 export class UsersController {
 
     constructor(private readonly usersService: UsersService) {}
-
+    
+    @ApiBearerAuth()
     @Get()
     async getUsers() {
         return this.usersService.getUsers();
     }
-
+    
+    @ApiBearerAuth()
     @Get(':id')
     async getUserById(@Param('id') id: string) {
     const foundUser = await this.usersService.getUserById(Number(id));
     if (!foundUser) throw new NotFoundException('User not found');
     return foundUser; 
     }
-
+    
+    @ApiBearerAuth()
     @Get(':id/activity')
     async getUserActivity(@Param('id') id: string) {
     const userId = Number(id);
@@ -32,7 +35,8 @@ export class UsersController {
     async createUser(@Body() data: Omit<User, 'user_id'>) {
         return this.usersService.createUser(data);
     }
-
+    
+    @ApiBearerAuth()
     @Put(':id')
     async updateUser(@Param('id') id: string, @Body() data: updateUserDto) {
     try {
@@ -41,7 +45,7 @@ export class UsersController {
         throw new NotFoundException('User does not exist');
     }
 }
-
+    @ApiBearerAuth()
     @Delete(':id')
     async deleteUser(@Param('id') id: string) {
         try {

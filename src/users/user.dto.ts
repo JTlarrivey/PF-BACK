@@ -1,8 +1,8 @@
-import { ApiHideProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, IsBoolean, IsOptional } from 'class-validator';
+import { ApiHideProperty, PickType } from '@nestjs/swagger';
+import { IsEmail, IsNotEmpty, IsString, IsBoolean, IsOptional, MinLength, MaxLength } from 'class-validator';
 
 export class CreateUserDto {
-
+  
   /**
    * Debe ser un string de entre 3 y 80 caracteres
    * @example "User1"
@@ -25,18 +25,18 @@ export class CreateUserDto {
    */
   @IsNotEmpty()
   @IsString()
+  @MinLength(8)
+  @MaxLength(15)
   password: string;
-  
-  @ApiHideProperty()
-  @IsBoolean()
-  @IsOptional()
-  isAdmin?: boolean; 
-
-  @IsBoolean()
-  @IsOptional()
-  isConfirmed?: boolean;
   
   @IsOptional()
   @IsString()
   photoUrl?: string; 
+
+  @ApiHideProperty()
+  @IsBoolean()
+  @IsOptional()
+  isAdmin?: boolean; // Hazlo requerido o asegúrate de manejarlo en el servicio
 }
+
+export class LoginUserDto extends PickType(CreateUserDto, ['email', 'password']) {}

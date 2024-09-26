@@ -1,13 +1,16 @@
-import { Controller, FileTypeValidator, MaxFileSizeValidator, Param, ParseFilePipe, Post, UploadedFile, UseInterceptors, Logger } from '@nestjs/common';
+import { Controller, FileTypeValidator, MaxFileSizeValidator, Param, ParseFilePipe, Post, UploadedFile, UseInterceptors, Logger, UseGuards } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileUploadService } from './file-upload.service';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Files')
 @Controller('files')
 export class FileUploadController {
     private readonly logger = new Logger(FileUploadController.name);
 
     constructor(private readonly fileUploadService: FileUploadService) {}
-
+    
+    @ApiBearerAuth()
     @Post('uploadImage/:id')
     @UseInterceptors(FileInterceptor('file'))
     async uploadImage(
