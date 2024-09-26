@@ -13,7 +13,10 @@ import { LoginUserDto } from 'src/users/loginUserDto';
 import { AuthGuard } from '@nestjs/passport';
 import { Request, Response } from 'express';
 import { CreateUserDto } from 'src/users/createuserDto';
+import { ApiTags } from '@nestjs/swagger';
 
+
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}

@@ -1,9 +1,10 @@
 import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, Query } from '@nestjs/common';
 import { BooksService } from './books.service';
 import { Book } from '@prisma/client';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { FilterBooksDto } from './books.dto';
 import { UpdateDescriptionDto } from './updateDescription.dto'; // Importa el DTO
+
 
 @ApiTags('Books')
 @Controller('books')
@@ -36,7 +37,8 @@ export class BooksController {
     const limitNum = limit ?? 10;
     return this.booksService.filterBooks(title, author, pageNum, limitNum);
   }
-
+  
+  @ApiBearerAuth()
   @Put(':id')
   async updateBook(@Param('id') id: string, @Body() data: Book) {
     try {
@@ -50,7 +52,8 @@ export class BooksController {
   async updateDescription(@Param('id') id: string, @Body() updateDescriptionDto: UpdateDescriptionDto) {
     return this.booksService.updateBookDescription(Number(id), updateDescriptionDto.description);
   }
-
+  
+  @ApiBearerAuth()
   @Delete(':id')
   async deleteBook(@Param('id') id: string) {
     try {
