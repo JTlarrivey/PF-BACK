@@ -1,0 +1,1 @@
+const mercadopago= require("mercadopago");
