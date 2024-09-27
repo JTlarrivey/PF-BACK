@@ -27,7 +27,7 @@ export class DonationsService {
         },
       ],
       back_urls: {
-        success: "http://localhost:3000/donations/success",
+        success: "http://localhost/donation/succes",
         failure: "http://localhost:3000/donations/failure",
         pending: "http://localhost:3000/donations/pending",
       },
