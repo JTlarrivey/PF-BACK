@@ -35,6 +35,6 @@ export class DonationsService {
       console.error('Error creating donation:', error);
       throw new Error(`Donation creation failed: ${error.message}`);
     }
-  }
+  };
   
 }
