@@ -10,6 +10,7 @@ import { AuthModule } from 'src/auth/auth.module';
 import { ReviewsModule } from 'src/reviews/reviews.module'; 
 import { WebhookModule } from 'src/webhook/webhook.module';
 import { DonationModule } from 'src/mercado-pago/donation.module';
+import { JwtModule } from '@nestjs/jwt';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -22,7 +23,12 @@ import { DonationModule } from 'src/mercado-pago/donation.module';
     AuthModule,
     ReviewsModule,
     DonationModule,
-    WebhookModule
+    WebhookModule,
+    JwtModule.register({
+      global: true,
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '60m' }
+    })
   ],
   controllers: [AppController],
   providers: [AppService],

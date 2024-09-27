@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, NotFoundException, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from '@prisma/client';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { updateUserDto } from './updateUsers.dto';
+import { AuthGuard } from 'src/auth/guard/auth.guard';
 
 @ApiTags('Users')
 @Controller('users')
@@ -18,6 +19,7 @@ export class UsersController {
     
     @ApiBearerAuth()
     @Get(':id')
+    @UseGuards(AuthGuard)
     async getUserById(@Param('id') id: string) {
     const foundUser = await this.usersService.getUserById(Number(id));
     if (!foundUser) throw new NotFoundException('User not found');
