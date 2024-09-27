@@ -31,7 +31,7 @@ async function main() {
 
     const categoryResults = await Promise.all(categoryPromises);
 
-    console.log('Categorías creadas:', categoryResults);
+
     
     const [category1, category2, category3, category4, category5, category6, category7, category8, category9, category10, category11, category12, category13] = categoryResults;
 
@@ -135,10 +135,6 @@ async function main() {
         },
     ];
 
-    books.forEach(book => {
-        console.log(`Libro: ${book.title}, Categorías conectadas:`, book.categories);
-    });
-
     const bookPromises = books.map(book => 
         prisma.book.upsert({
             where: { title: book.title },
@@ -158,7 +154,7 @@ async function main() {
 
     const booksResults =  await Promise.all(bookPromises);
 
-    console.log('libros creados:', booksResults);
+
 }
 
 main()
