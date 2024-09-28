@@ -44,6 +44,7 @@ export class DonationsService {
       console.error('Error creating donation:', error);
       throw new Error(`Donation creation failed: ${error.message}`);
     }
+
   }
 
   async handleWebhook(query: any) {
@@ -61,4 +62,5 @@ export class DonationsService {
       // Implementar la lógica para guardar o actualizar el estado de la donación en tu base de datos
     }
   }
+
 }
