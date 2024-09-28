@@ -33,10 +33,10 @@ model User {
   following          Follower[] @relation("Followed")
   notifications      Notification[]
   photoUrl           String?
-  isConfirmed     Boolean  @default(false) 
+  isConfirmed        Boolean  @default(false) 
   reports  Report[]
-  friends           User[]   @relation("UserFriends")
-  friendOf         User[]   @relation("UserFriends")
+  friends            User[]   @relation("UserFriends")
+  friendOf           User[]   @relation("UserFriends")
 
 }
 
