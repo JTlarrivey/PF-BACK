@@ -4,6 +4,7 @@ import { AddFriendDto, RemoveFriendDto, GetUserFavoritesDto } from './favorites.
 import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express'; // Asegúrate de importar Request desde express
 import { AuthGuard } from 'src/auth/auth.guard';
+import { ExtendedRequest } from 'src/interface/extended-request.interface';
 
 @ApiTags('Favorites')
 @Controller('favorites')
