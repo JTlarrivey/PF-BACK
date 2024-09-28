@@ -2,7 +2,6 @@ import { Controller, Post, Delete, Param, Get, Body, Req, UseGuards, BadRequestE
 import { FavoritesService } from './favorites.service';
 import { AddFriendDto, RemoveFriendDto, GetUserFavoritesDto } from './favorites.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { Request } from 'express'; // Asegúrate de importar Request desde express
 import { AuthGuard } from 'src/auth/auth.guard';
 import { ExtendedRequest } from 'src/interface/extended-request.interface';
 
@@ -14,14 +13,30 @@ export class FavoritesController {
 
   @Post('add-friend')
   async addFriend(@Body() addFriendDto: AddFriendDto, @Req() req: ExtendedRequest) {
-    const userId = req.user.user_id; // Cambia 'id' por 'user_id'
-    return this.favoritesService.addFriend(addFriendDto.friendId, userId);
+    const userId = req.user.user_id;
+    if (!userId || !addFriendDto.friendId) {
+      throw new BadRequestException('User ID or Friend ID is missing');
+    }
+    
+    try {
+      return await this.favoritesService.addFriend(addFriendDto.friendId, userId);
+    } catch (error) {
+      throw new BadRequestException('Error adding friend');
+    }
   }
 
   @Delete('remove-friend')
   async removeFriend(@Body() removeFriendDto: RemoveFriendDto, @Req() req: ExtendedRequest) {
-    const userId = req.user.user_id; // Cambia 'id' por 'user_id'
-    return this.favoritesService.removeFriend(removeFriendDto.friendId, userId);
+    const userId = req.user.user_id;
+    if (!userId || !removeFriendDto.friendId) {
+      throw new BadRequestException('User ID or Friend ID is missing');
+    }
+
+    try {
+      return await this.favoritesService.removeFriend(removeFriendDto.friendId, userId);
+    } catch (error) {
+      throw new BadRequestException('Error removing friend');
+    }
   }
 
   @Get('user/:userId')
