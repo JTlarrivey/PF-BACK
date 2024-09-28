@@ -48,7 +48,7 @@ export class AuthController {
       const { token: jwtToken } = await this.authService.confirmEmail(token);
 
       // Redirigir al frontend con el token para iniciar sesión automáticamente
-      return res.redirect(`http://localhost/auth?token=${jwtToken}`);
+      return res.redirect(`https://henry-pf-rho.vercel.app/auth?token=${jwtToken}`);
     } catch (error) {
       console.error('Error confirming email:', error);
       return res.status(400).send('Error al confirmar el correo');
@@ -69,7 +69,7 @@ export class AuthController {
       const { accessToken } = await this.authService.googleLogin(req);
 
       // Redirige al frontend con el token en la URL
-      return res.redirect(`http://localhost/auth?token=${accessToken}`);
+      return res.redirect(`https://henry-pf-rho.vercel.app/auth?token=${accessToken}`);
     } catch (error) {
       console.error('Error during Google authentication callback:', error);
       return res.status(400).send('Error en la autenticación con Google');
