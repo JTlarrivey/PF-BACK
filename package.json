@@ -37,7 +37,7 @@
     "google-auth-library": "^9.14.1",
     "jsonwebtoken": "^9.0.2",
     "jsw": "^4.0.2",
-    "mercadopago": "^1.5.16",
+    "mercadopago": "^1.5.17",
     "nodemailer": "^6.9.15",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
