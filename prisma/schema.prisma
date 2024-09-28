@@ -18,27 +18,26 @@ datasource db {
 }
 
 model User {
-
-  user_id            Int       @id @default(autoincrement())
-  name               String
-  email              String    @unique
-  password           String
-  isAdmin            Boolean
-  registration_date  DateTime  @default(now())
-  reviews            Review[]
-  bookLists          BookList[]
-  forumComments      ForumComment[]
-  favorites          Favorite[]
-  followers          Follower[] @relation("Following")
-  following          Follower[] @relation("Followed")
-  notifications      Notification[]
-  photoUrl           String?
-  isConfirmed        Boolean  @default(false) 
-  reports  Report[]
-  friends            User[]   @relation("UserFriends")
-  friendOf           User[]   @relation("UserFriends")
-
+  user_id           Int        @id @default(autoincrement())
+  name              String
+  email             String     @unique
+  password          String
+  isAdmin           Boolean
+  registration_date DateTime   @default(now())
+  reviews           Review[]
+  bookLists         BookList[]
+  forumComments     ForumComment[]
+  favorites         Favorite[]
+  followers         Follower[] @relation("Following")
+  following         Follower[] @relation("Followed")
+  notifications     Notification[]
+  photoUrl          String?
+  isConfirmed       Boolean    @default(false)
+  reports           Report[]
+  friends           User[]     @relation("UserFriends")
+  friendOf          User[]     @relation("UserFriends")
 }
+
 
 model Book {
   book_id            Int       @id @default(autoincrement())
