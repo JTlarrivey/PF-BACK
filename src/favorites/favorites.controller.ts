@@ -40,15 +40,14 @@ export class FavoritesController {
   }
 
   @Get('user/:userId')
-  async getUserFavorites(@Param() getUserFavoritesDto: GetUserFavoritesDto) {
-    try {
-      const favorites = await this.favoritesService.getUserFavorites(getUserFavoritesDto.userId);
-      if (!favorites) {
-        throw new NotFoundException('User not found or has no favorites');
-      }
-      return favorites;
-    } catch (error) {
-      throw new BadRequestException('Error fetching user favorites');
-    }
+async getUserFavorites(@Param('userId') userId: number, @Req() req: ExtendedRequest) {
+  const requesterId = req.user.user_id;  // El ID del usuario que realiza la solicitud
+
+  try {
+    const favorites = await this.favoritesService.getUserFavorites(userId, requesterId);
+    return favorites;
+  } catch (error) {
+    throw new BadRequestException(error.message);
   }
+}
 }
