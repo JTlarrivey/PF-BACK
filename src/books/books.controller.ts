@@ -56,10 +56,12 @@ export class BooksController {
   @ApiBearerAuth()
   @Delete(':id')
   async deleteBook(@Param('id') id: string) {
-    try {
-      return await this.booksService.deleteBook(Number(id));
-    } catch (error) {
-      throw new NotFoundException('Book does not exist');
-    }
+      try {
+          const book = await this.booksService.deleteBook(Number(id));
+          
+          return { message: 'Book deleted successfully'};
+      } catch (error) {
+          throw new NotFoundException('Book does not exist or is already deleted');
+      }
   }
 }

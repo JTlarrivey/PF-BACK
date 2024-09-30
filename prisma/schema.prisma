@@ -51,6 +51,7 @@ model Book {
   bookListBooks      BookListBook[]
   favorites          Favorite[]
   photoUrl           String
+  isDeleted          Boolean    @default(false)
 }
 
 model Category {

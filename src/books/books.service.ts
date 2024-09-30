@@ -46,13 +46,21 @@ export class BooksService {
     });
   }
 
-  async deleteBook(book_id: number): Promise<Book> {
-    return this.prisma.book.delete({
-      where: {
-        book_id
-      }
+  async deleteBook(book_id: number): Promise<Omit<Book, 'isDeleted'>> {
+    const deletedBook = await this.prisma.book.update({
+        where: {
+            book_id
+        },
+        data: {
+            isDeleted: true // Marcamos el libro como eliminado
+        }
     });
-  }
+
+    // Excluir el campo isDeleted del objeto devuelto, si es necesario
+    const { isDeleted, ...bookWithoutIsDeleted } = deletedBook;
+    return bookWithoutIsDeleted;
+}
+
 
   async filterBooks(title?: string, author?: string, page: number = 1, limit: number = 10): Promise<Book[]> {
     const skip = (page - 1) * limit;
