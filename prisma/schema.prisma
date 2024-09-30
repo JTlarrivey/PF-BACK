@@ -36,6 +36,7 @@ model User {
   reports           Report[]
   friends           User[]     @relation("UserFriends")
   friendOf          User[]     @relation("UserFriends")
+  isDeleted         Boolean    @default(false)
 }
 
 

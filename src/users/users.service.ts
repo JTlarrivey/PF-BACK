@@ -65,11 +65,14 @@ export class UsersService {
     }
 
     async deleteUser(id: number): Promise<Omit<User, 'password' | 'isAdmin'>> {
-        const deletedUser = await this.prisma.user.delete({
+        // Marcar al usuario como eliminado lógicamente
+        const deletedUser = await this.prisma.user.update({
             where: { user_id: id },
+            data: { isDeleted: true },  // Aquí marcamos al usuario como eliminado
         });
     
-        const { password, isAdmin, ...userWithoutSensitiveInfo } = deletedUser; 
+        // Excluir la información sensible (password, isAdmin) del objeto devuelto
+        const { password, isAdmin, ...userWithoutSensitiveInfo } = deletedUser;
         return userWithoutSensitiveInfo;
     }
-}
+}    

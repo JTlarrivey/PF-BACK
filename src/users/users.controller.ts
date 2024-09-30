@@ -47,13 +47,23 @@ export class UsersController {
         throw new NotFoundException('User does not exist');
     }
 }
-    @ApiBearerAuth()
-    @Delete(':id')
-    async deleteUser(@Param('id') id: string) {
-        try {
-            return await this.usersService.deleteUser(Number(id));
-        } catch (error) {
-            throw new NotFoundException('User does not exist');
+@ApiBearerAuth()
+@Delete(':id')
+async deleteUser(@Param('id') id: string) {
+    try {
+        const user = await this.usersService.deleteUser(Number(id));
+        
+        // Si el usuario ya estaba eliminado, lanzar una excepción
+        if (!user) {
+            throw new NotFoundException('User does not exist or is already deleted');
+        }
+
+        return {
+            message: 'User deleted successfully'
+        };
+    } catch (error) {
+        throw new NotFoundException('User does not exist');
         }
     }
+
 }
