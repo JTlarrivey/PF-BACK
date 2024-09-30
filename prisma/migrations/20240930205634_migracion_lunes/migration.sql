@@ -21,6 +21,7 @@ CREATE TABLE "Book" (
     "publication_year" INTEGER NOT NULL,
     "description" TEXT NOT NULL,
     "photoUrl" TEXT NOT NULL,
+    "isDeleted" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "Book_pkey" PRIMARY KEY ("book_id")
 );

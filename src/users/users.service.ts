@@ -9,7 +9,9 @@ export class UsersService {
     constructor(private readonly prisma: PrismaService) {}
 
     async getUsers(): Promise<Omit<User, 'password' | 'isAdmin'>[]> {
-        const users = await this.prisma.user.findMany();
+        const users = await this.prisma.user.findMany({
+            where: { isDeleted: false }
+        })
         return users.map(({ password, isAdmin, ...userWithoutSensitiveInfo }) => userWithoutSensitiveInfo);
     }
 
