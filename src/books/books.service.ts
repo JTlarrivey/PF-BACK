@@ -12,6 +12,7 @@ export class BooksService {
     
     // Consulta a la base de datos con paginación
     return this.prisma.book.findMany({
+      where: { isDeleted: false },
       skip: skip,
       take: limit,
       include: {
