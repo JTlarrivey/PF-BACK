@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
@@ -52,18 +52,24 @@ export class UsersService {
     }
 
     async updateUser(id: number, data: updateUserDto): Promise<Omit<User, 'password' | 'isAdmin'>> {
-        if (data.password) {
-            // Encriptar la nueva contraseña si es que se está actualizando
+        if (data.password && typeof data.password === 'string') {
             data.password = await bcrypt.hash(data.password, 10);
         }
     
-        const updatedUser = await this.prisma.user.update({
-            where: { user_id: id },
-            data,
-        });
+        try {
+            const updatedUser = await this.prisma.user.update({
+                where: { user_id: id },
+                data,
+            });
     
-        const { password, isAdmin, ...userWithoutSensitiveInfo } = updatedUser; 
-        return userWithoutSensitiveInfo;
+            const { password, isAdmin, ...userWithoutSensitiveInfo } = updatedUser;
+            return userWithoutSensitiveInfo;
+        } catch (error) {
+            if (error.code === 'P2002' && error.meta?.target.includes('email')) {
+                throw new NotFoundException('El email ya está en uso.');
+            }
+            throw error;
+        }
     }
 
     async deleteUser(id: number): Promise<Omit<User, 'password' | 'isAdmin'>> {
