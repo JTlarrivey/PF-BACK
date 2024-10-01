@@ -40,13 +40,23 @@ export class UsersController {
     
     @ApiBearerAuth()
     @Put(':id')
-    async updateUser(@Param('id') id: string, @Body() data: updateUserDto) {
+    @UseGuards(AuthGuard)
+    async updateUser(
+    @Param('id') id: string,
+    @Body() data: updateUserDto
+) {
     try {
-        return await this.usersService.updateUser(Number(id), data);
+    return await this.usersService.updateUser(Number(id), data);
     } catch (error) {
-        throw new NotFoundException('User does not exist');
+    if (error instanceof NotFoundException) {
+    throw new NotFoundException('User does not exist');
+    } else if (error.message.includes('El email ya está en uso')) {
+    throw new NotFoundException('El email ya está en uso.');
     }
+    throw error;
+    } 
 }
+
 @ApiBearerAuth()
 @Delete(':id')
 async deleteUser(@Param('id') id: string) {
@@ -65,5 +75,4 @@ async deleteUser(@Param('id') id: string) {
         throw new NotFoundException('User does not exist');
         }
     }
-
-}
+    }
