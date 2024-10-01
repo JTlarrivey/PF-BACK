@@ -30,6 +30,7 @@ CREATE TABLE "Book" (
 CREATE TABLE "Category" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
+    "isDeleted" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
 );
@@ -42,6 +43,7 @@ CREATE TABLE "Review" (
     "content" TEXT NOT NULL,
     "rating" INTEGER NOT NULL,
     "review_date" TIMESTAMP(3) NOT NULL,
+    "isDeleted" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "Review_pkey" PRIMARY KEY ("review_id")
 );
@@ -51,7 +53,9 @@ CREATE TABLE "BookList" (
     "list_id" SERIAL NOT NULL,
     "user_id" INTEGER NOT NULL,
     "list_name" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
     "creation_date" TIMESTAMP(3) NOT NULL,
+    "isDeleted" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "BookList_pkey" PRIMARY KEY ("list_id")
 );
@@ -60,6 +64,7 @@ CREATE TABLE "BookList" (
 CREATE TABLE "BookListBook" (
     "list_id" INTEGER NOT NULL,
     "book_id" INTEGER NOT NULL,
+    "isDeleted" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "BookListBook_pkey" PRIMARY KEY ("list_id","book_id")
 );
@@ -70,6 +75,7 @@ CREATE TABLE "Forum" (
     "topic" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "creation_date" TIMESTAMP(3) NOT NULL,
+    "isDeleted" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "Forum_pkey" PRIMARY KEY ("forum_id")
 );
@@ -81,6 +87,7 @@ CREATE TABLE "ForumComment" (
     "user_id" INTEGER NOT NULL,
     "content" TEXT NOT NULL,
     "comment_date" TIMESTAMP(3) NOT NULL,
+    "isDeleted" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "ForumComment_pkey" PRIMARY KEY ("comment_id")
 );
@@ -107,6 +114,7 @@ CREATE TABLE "Notification" (
     "user_id" INTEGER NOT NULL,
     "content" TEXT NOT NULL,
     "send_date" TIMESTAMP(3) NOT NULL,
+    "isDeleted" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "Notification_pkey" PRIMARY KEY ("notification_id")
 );
@@ -118,6 +126,7 @@ CREATE TABLE "Report" (
     "review_id" INTEGER NOT NULL,
     "reason" TEXT NOT NULL,
     "report_date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "isDeleted" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "Report_pkey" PRIMARY KEY ("report_id")
 );

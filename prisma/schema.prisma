@@ -58,6 +58,7 @@ model Category {
   id                 Int       @id @default(autoincrement())
   name               String    @unique
   books              Book[]    @relation("BookCategories")
+  isDeleted          Boolean    @default(false)
 }
 
 model Review {
@@ -69,7 +70,8 @@ model Review {
   content            String
   rating             Int
   review_date        DateTime
-  reports  Report[]
+  reports            Report[]
+  isDeleted          Boolean    @default(false)
 }
 
 model BookList {
@@ -77,8 +79,10 @@ model BookList {
   user               User      @relation(fields: [user_id], references: [user_id])
   user_id            Int
   list_name          String
+  description        String
   creation_date      DateTime
   books              BookListBook[]
+  isDeleted          Boolean    @default(false)
 }
 
 model BookListBook {
@@ -86,6 +90,7 @@ model BookListBook {
   book_id            Int
   bookList           BookList  @relation(fields: [list_id], references: [list_id])
   book               Book      @relation(fields: [book_id], references: [book_id])
+  isDeleted          Boolean    @default(false)
   @@id([list_id, book_id])
 }
 
@@ -95,6 +100,7 @@ model Forum {
   description        String
   creation_date      DateTime
   comments           ForumComment[]
+  isDeleted          Boolean    @default(false)
 }
 
 model ForumComment {
@@ -105,6 +111,7 @@ model ForumComment {
   user_id            Int
   content            String
   comment_date       DateTime
+  isDeleted          Boolean    @default(false)
 }
 
 model Favorite {
@@ -129,6 +136,7 @@ model Notification {
   user_id            Int
   content            String
   send_date          DateTime
+  isDeleted          Boolean    @default(false)
 }
 
 model Report {
@@ -139,6 +147,7 @@ model Report {
   review_id      Int
   reason         String
   report_date    DateTime  @default(now())
+  isDeleted          Boolean    @default(false)
 }
 
 
