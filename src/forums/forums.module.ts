@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { ForumsController } from './forums.controller';
 import { ForumsService } from './forums.service';
+import { ForumsController } from './forums.controller';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Module({
   controllers: [ForumsController],
-  providers: [ForumsService]
+  providers: [ForumsService, PrismaService],
 })
 export class ForumsModule {}

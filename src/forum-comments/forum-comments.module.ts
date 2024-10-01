@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { ForumCommentsController } from './forum-comments.controller';
 import { ForumCommentsService } from './forum-comments.service';
+import { ForumCommentsController } from './forum-comments.controller';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Module({
   controllers: [ForumCommentsController],
-  providers: [ForumCommentsService]
+  providers: [ForumCommentsService, PrismaService],
 })
 export class ForumCommentsModule {}
