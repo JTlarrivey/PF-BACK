@@ -19,7 +19,7 @@ export class UsersController {
     
     @ApiBearerAuth()
     @Get(':id')
-    @UseGuards(AuthGuard)
+    // @UseGuards(AuthGuard)
     async getUserById(@Param('id') id: string) {
     const foundUser = await this.usersService.getUserById(Number(id));
     if (!foundUser) throw new NotFoundException('User not found');

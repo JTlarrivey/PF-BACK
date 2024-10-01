@@ -10,10 +10,44 @@ export class UsersService {
 
     async getUsers(): Promise<Omit<User, 'password' | 'isAdmin'>[]> {
         const users = await this.prisma.user.findMany({
-            where: { isDeleted: false }
-        })
-        return users.map(({ password, isAdmin, ...userWithoutSensitiveInfo }) => userWithoutSensitiveInfo);
+            where: { isDeleted: false },
+            include: {
+                bookLists: {
+                    include: {
+                        books: { // Incluyendo los libros de cada lista
+                            include: {
+                                book: { 
+                                    select: {
+                                        book_id: true,
+                                        title: true,
+                                        photoUrl: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                friends: true,
+            },
+        });
+    
+        return users.map(({ password, isAdmin, bookLists, friends, ...userWithoutSensitiveInfo }) => {
+            const books = bookLists.flatMap(bookList => 
+                bookList.books.map(bookListBook => ({
+                    book_id: bookListBook.book.book_id,
+                    title: bookListBook.book.title,
+                    photoUrl: bookListBook.book.photoUrl,
+                }))
+            );
+    
+            return {
+                ...userWithoutSensitiveInfo,
+                book: books,
+                friends: friends || [],
+            };
+        });
     }
+
 
     async getUserById(id: number): Promise<Omit<User, 'password' | 'isAdmin'> | null> {
         const user = await this.prisma.user.findUnique({
