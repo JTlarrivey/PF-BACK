@@ -3,20 +3,25 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GoogleStrategy } from './google.strategy';
+import { JwtStrategy } from './jwt.strategy'; // Asegúrate de importar la estrategia
 import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
     ConfigModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '1h' },
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: '1h' },
+      }),
     }),
-    PassportModule.register({ session: false }), // Asegúrate de configurar las sesiones según sea necesario
+    PassportModule.register({ defaultStrategy: 'jwt', session: false }), // Asegúrate de configurar el defaultStrategy
   ],
   controllers: [AuthController],
-  providers: [AuthService, PrismaService, GoogleStrategy],
+  providers: [AuthService, PrismaService, GoogleStrategy, JwtStrategy], // Registra JwtStrategy
 })
 export class AuthModule {}
