@@ -90,14 +90,32 @@ export class BooksService {
   
   //ADMIN 
   async createBook(data: CreateBookDto): Promise<Book> {
+    // Verificar que data.categories existe y es un array
+    if (!Array.isArray(data.categories)) {
+      throw new Error('categories debe ser un array');
+    }
+  
+    // Filtrar solo las categorías que tengan un id definido
+    const validCategories = data.categories
+      .filter(category => category.id !== undefined)
+      .map(category => ({
+        id: category.id,
+      }));
+  
     return this.prisma.book.create({
       data: {
         title: data.title,
         description: data.description,
         photoUrl: data.photoUrl,
         author: data.author,
-        publication_year: new Date().getFullYear(), 
-      }
+        publication_year: data.publication_year,
+        categories: {
+          connect: validCategories, // Solo conectar categorías válidas
+        },
+      },
+      include: {
+        categories: true,
+      },
     });
   }
 }
