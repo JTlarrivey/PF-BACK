@@ -22,7 +22,7 @@ model User {
   name              String
   email             String     @unique
   password          String
-  description       String
+  description       String?
   isAdmin           Boolean
   registration_date DateTime   @default(now())
   reviews           Review[]
