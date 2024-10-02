@@ -1,5 +1,5 @@
 import { ApiHideProperty, PickType } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, IsBoolean, IsOptional, MinLength, MaxLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, IsBoolean, IsOptional, MinLength, MaxLength, IsEmpty } from 'class-validator';
 
 export class CreateUserDto {
   
@@ -38,7 +38,7 @@ export class CreateUserDto {
   photoUrl?: string; 
 
   @ApiHideProperty()
-  @IsBoolean()
+  @IsEmpty()
   @IsOptional()
   isAdmin?: boolean; // Hazlo requerido o asegúrate de manejarlo en el servicio
 }
