@@ -1,9 +1,13 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, NotFoundException, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, NotFoundException, UseGuards, ForbiddenException, Req } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from '@prisma/client';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { updateUserDto } from './updateUsers.dto';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
+import { Request } from 'express'; 
+import { Roles } from 'src/decorators/roles.decorators';
+import { Role } from './roles.enum';
+import { RolesGuard } from 'src/auth/guard/roles.guard';
 
 @ApiTags('Users')
 @Controller('users')
@@ -75,4 +79,25 @@ async deleteUser(@Param('id') id: string) {
         throw new NotFoundException('User does not exist');
         }
     }
+
+    @ApiBearerAuth()
+    @Put(':id/make-admin')
+    @Roles(Role.Admin)
+    @UseGuards(AuthGuard, RolesGuard)
+    async makeUserAdmin(@Param('id') id: string, @Req() req: Request) {
+        const adminUser = req.user as User;  
+
+        // Verificación de que el usuario tiene el campo isAdmin
+        if (!adminUser || !adminUser.isAdmin) {
+            throw new ForbiddenException('You do not have permission to perform this action');
+        }
+
+        try {
+            const updatedUser = await this.usersService.updateUserRole(Number(id), true);
+            return { message: 'User is now an admin', user: updatedUser };
+        } catch (error) {
+            throw new NotFoundException('User not found');
+        }
     }
+}
+    
