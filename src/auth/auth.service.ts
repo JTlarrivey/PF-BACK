@@ -7,6 +7,7 @@ import { UserResponseDto } from 'src/users/userResponseDto';
 import { OAuth2Client } from 'google-auth-library'; // Importar cliente de Google
 import * as nodemailer from 'nodemailer'; // Importar nodemailer
 import { CreateUserDto } from 'src/users/user.dto';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -15,6 +16,7 @@ export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService, 
   ) {}
 
   // Configuración de Nodemailer para el envío de correos electrónicos
@@ -213,5 +215,54 @@ export class AuthService {
         photoUrl: user.photoUrl,
       },
     };
+  }
+  async sendPasswordResetEmail(email: string) {
+    const user = await this.prisma.user.findUnique({ where: { email } });
+  
+    if (!user) {
+      throw new BadRequestException('El usuario no existe.');
+    }
+  
+    const resetToken = this.jwtService.sign({ email: user.email }, { expiresIn: '1h' });
+    const resetUrl = `${process.env.APP_URL}/auth/reset-password?token=${resetToken}`;
+  
+    try {
+      // Llamada al método `sendMail` con los 4 argumentos requeridos
+      await this.mailService.sendMail(
+        email, // Dirección de correo del destinatario
+        'Restablecimiento de contraseña', // Asunto del correo
+        `Haga clic en el siguiente enlace para restablecer su contraseña: ${resetUrl}`, // Texto plano del correo
+        `<p>Haga clic en el siguiente enlace para restablecer su contraseña:</p><a href="${resetUrl}">Restablecer contraseña</a>` // HTML del correo
+      );
+      console.log('Correo de restablecimiento de contraseña enviado');
+    } catch (error) {
+      console.error('Error al enviar el correo de restablecimiento:', error);
+      throw new BadRequestException('Error al enviar el correo de restablecimiento');
+    }
+  }
+
+  // Restablecer la contraseña usando el token
+  async resetPassword(token: string, newPassword: string) {
+    try {
+      const decoded = this.jwtService.verify(token);
+      const email = decoded.email;
+
+      const user = await this.prisma.user.findUnique({ where: { email } });
+
+      if (!user) {
+        throw new BadRequestException('Usuario no encontrado');
+      }
+
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      await this.prisma.user.update({
+        where: { email },
+        data: { password: hashedPassword },
+      });
+
+      return { message: 'Contraseña actualizada con éxito' };
+    } catch (error) {
+      throw new BadRequestException('Token inválido o expirado');
+    }
   }
 }

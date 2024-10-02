@@ -75,4 +75,28 @@ export class AuthController {
       return res.status(400).send('Error en la autenticación con Google');
     }
   }
+  @Post('forgot-password')
+  async forgotPassword(@Body('email') email: string) {
+    try {
+      await this.authService.sendPasswordResetEmail(email);
+      return { message: 'Correo de restablecimiento de contraseña enviado' };
+    } catch (error) {
+      console.error('Error during password reset request:', error);
+      throw new Error('Failed to send reset password email');
+    }
+  }
+
+  @Post('reset-password')
+  async resetPassword(
+    @Query('token') token: string,
+    @Body('newPassword') newPassword: string,
+  ) {
+    try {
+      return await this.authService.resetPassword(token, newPassword);
+    } catch (error) {
+      console.error('Error during password reset:', error);
+      throw new Error('Failed to reset password');
+    }
+  }
 }
+
