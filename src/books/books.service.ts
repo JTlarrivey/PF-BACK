@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Book } from '@prisma/client';
+import { CreateBookDto } from './createbook.dto';
 
 @Injectable()
 export class BooksService {
@@ -32,11 +33,11 @@ export class BooksService {
     });
   }
   
-  async createBook(data: Omit<Book, 'book_id'>): Promise<Book> {
-    return this.prisma.book.create({
-      data
-    });
-  }
+  // async createBook(data: Omit<Book, 'book_id'>): Promise<Book> {
+  //   return this.prisma.book.create({
+  //     data
+  //   });
+  // }
 
   async updateBook(book_id: number, data: Partial<Omit<Book, 'book_id'>>): Promise<Book> {
     return this.prisma.book.update({
@@ -84,6 +85,19 @@ export class BooksService {
     return this.prisma.book.update({
       where: { book_id },
       data: { description }, // Actualiza solo la descripción
+    });
+  }
+  
+  //ADMIN 
+  async createBook(data: CreateBookDto): Promise<Book> {
+    return this.prisma.book.create({
+      data: {
+        title: data.title,
+        description: data.description,
+        photoUrl: data.photoUrl,
+        author: data.author,
+        publication_year: new Date().getFullYear(), 
+      }
     });
   }
 }

@@ -1,9 +1,14 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
 import { BooksService } from './books.service';
 import { Book } from '@prisma/client';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { FilterBooksDto } from './books.dto';
 import { UpdateDescriptionDto } from './updateDescription.dto'; // Importa el DTO
+import { CreateBookDto } from './createbook.dto';
+import { Roles } from 'src/decorators/roles.decorators';
+import { Role } from 'src/users/roles.enum';
+import { AuthGuard } from 'src/auth/guard/auth.guard';
+import { RolesGuard } from 'src/auth/guard/roles.guard';
 
 
 @ApiTags('Books')
@@ -51,6 +56,24 @@ export class BooksController {
   @Post(':id/description') // Endpoint para actualizar la descripción
   async updateDescription(@Param('id') id: string, @Body() updateDescriptionDto: UpdateDescriptionDto) {
     return this.booksService.updateBookDescription(Number(id), updateDescriptionDto.description);
+  }
+  
+  //Alta de libro-Admin
+  @ApiBearerAuth()
+  @Post()
+  @Roles(Role.Admin)
+  @UseGuards(AuthGuard, RolesGuard)
+  async createBook(
+    @Body() createBookDto: CreateBookDto, 
+    @Req() req 
+  ) {
+    const user = req.user;
+    
+    if (!user || !user.isAdmin) {
+      throw new ForbiddenException('You do not have permission to perform this action');
+    }
+    
+    return this.booksService.createBook(createBookDto);
   }
   
   @ApiBearerAuth()
