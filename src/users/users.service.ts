@@ -124,4 +124,13 @@ export class UsersService {
         const { password, isAdmin, ...userWithoutSensitiveInfo } = deletedUser;
         return userWithoutSensitiveInfo;
     }
-}    
+
+     // Método para actualizar el rol de un usuario
+  async updateUserRole(user_id: number, isAdmin: boolean): Promise<User> {
+    return this.prisma.user.update({
+      where: { user_id },
+      data: { isAdmin },
+    });
+  }
+}
+   

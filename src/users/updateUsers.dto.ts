@@ -17,4 +17,8 @@ export class updateUserDto {
   @IsOptional()
   @IsString()
   photoUrl?: string;
+  
+  @IsOptional()
+  @IsString()
+  description?: string;
 }
