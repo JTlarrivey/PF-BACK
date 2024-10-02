@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, NotFoundException, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, NotFoundException, UseGuards, Patch } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from '@prisma/client';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { updateUserDto } from './updateUsers.dto';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
+import { RolesGuard } from 'src/auth/guard/roles.guard';
 
 @ApiTags('Users')
 @Controller('users')
@@ -56,6 +57,24 @@ export class UsersController {
     throw error;
     } 
 }
+
+@ApiBearerAuth()
+@Patch(':id/make-admin')
+@UseGuards(RolesGuard) // Protege esta ruta para que solo los admins puedan acceder
+async makeAdmin(@Param('id') id: string) {
+    const userId = Number(id);  
+    return this.usersService.updateUserToAdmin(userId, true);
+}
+
+@ApiBearerAuth()
+@Patch(':id/remove-admin')
+@UseGuards(RolesGuard) // Protege esta ruta también
+async removeAdmin(@Param('id') id: string) {
+    const userId = Number(id);
+    return this.usersService.updateUserToAdmin(userId, false);
+}
+
+
 
 @ApiBearerAuth()
 @Delete(':id')

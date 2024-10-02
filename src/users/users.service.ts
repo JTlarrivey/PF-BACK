@@ -106,6 +106,13 @@ export class UsersService {
         }
     }
 
+    async updateUserToAdmin(userId: number, isAdmin: boolean): Promise<User> {
+        return this.prisma.user.update({
+            where: { user_id: userId },
+            data: { isAdmin },
+        });
+    }
+
     async deleteUser(id: number): Promise<Omit<User, 'password' | 'isAdmin'>> {
         // Marcar al usuario como eliminado lógicamente
         const deletedUser = await this.prisma.user.update({
