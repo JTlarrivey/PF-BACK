@@ -60,21 +60,21 @@ export class BooksController {
   
   //Alta de libro-Admin
   @ApiBearerAuth()
-  @Post()
-  @Roles(Role.Admin)
-  @UseGuards(AuthGuard, RolesGuard)
-  async createBook(
-    @Body() createBookDto: CreateBookDto, 
-    @Req() req 
-  ) {
-    const user = req.user;
-    
-    if (!user || !user.isAdmin) {
-      throw new ForbiddenException('You do not have permission to perform this action');
-    }
-    
-    return this.booksService.createBook(createBookDto);
+@Post()
+@Roles(Role.Admin)
+@UseGuards(AuthGuard, RolesGuard)
+async createBook(
+  @Body() createBookDto: CreateBookDto, 
+  @Req() req 
+) {
+  const user = req.user;
+  
+  if (!user || !user.isAdmin) {
+    throw new ForbiddenException('You do not have permission to perform this action');
   }
+  
+  return this.booksService.createBook(createBookDto);
+}
   
   @ApiBearerAuth()
   @Delete(':id')

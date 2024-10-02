@@ -126,10 +126,10 @@ export class UsersService {
     }
 
      // Método para actualizar el rol de un usuario
-  async updateUserRole(user_id: number, isAdmin: boolean): Promise<User> {
+    async updateUserRole(user_id: number, isAdmin: boolean): Promise<User> {
     return this.prisma.user.update({
-      where: { user_id },
-      data: { isAdmin },
+        where: { user_id },
+        data: { isAdmin },
     });
   }
 }
