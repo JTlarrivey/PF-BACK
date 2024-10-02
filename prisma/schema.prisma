@@ -36,6 +36,7 @@ model User {
   reports           Report[]
   friends           User[]     @relation("UserFriends")
   friendOf          User[]     @relation("UserFriends")
+  donations         Donation[] // Relación con Donaciones
   isDeleted         Boolean    @default(false)
 }
 
@@ -139,6 +140,23 @@ model Report {
   review_id      Int
   reason         String
   report_date    DateTime  @default(now())
+}
+model Donation {
+  id                String   @id @default(uuid())
+  preferenceId      String?  @unique
+  payerEmail        String 
+  transactionAmount Float 
+  status            String 
+  statusDetail      String? 
+  paymentMethod     String? 
+  paymentType       String? 
+  eventType         String 
+  eventDate         DateTime 
+  rawWebhookData    Json 
+  user              User?    @relation(fields: [userId], references: [user_id]) // Relación con User
+  userId            Int?     // Este campo almacena el ID del usuario asociado
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
 
