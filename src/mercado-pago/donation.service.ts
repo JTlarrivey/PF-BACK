@@ -55,7 +55,7 @@ export class DonationsService {
         failure: "http://localhost:3000/donations/failure",
         pending: "http://localhost:3000/donations/pending",
       },
-      notification_url: "https://94ee-2802-8010-21a6-2c01-c8ad-32f7-63c1-b749.ngrok-free.app/donations/webhook",
+      notification_url: "https://fc17-2802-8010-21a6-2c01-7c78-163b-ad41-2a59.ngrok-free.app/donations/webhook",
       payer: {
         email: payerEmail,
       },
@@ -130,17 +130,18 @@ export class DonationsService {
     }
   }
   // Obtener donaciones del usuario
-  async getUserDonations(userId: number) {
-    try {
-      const donations = await this.prisma.donation.findMany({
-        where: { userId: userId },
-      });
-      return donations;
-    } catch (error) {
-      console.error('Error fetching donations:', error);
-      throw new Error(`Failed to fetch user donations: ${error.message}`);
-    }
+ // DonationsService
+async getDonationById(donationId: string) {
+  try {
+    return await this.prisma.donation.findUnique({
+      where: { id: donationId },
+    });
+  } catch (error) {
+    console.error('Error fetching donation:', error);
+    throw new Error(`Failed to fetch donation: ${error.message}`);
   }
+}
+
   async getPaymentDetails(paymentId: number) {
     try {
       // Consultar detalles del pago en Mercado Pago

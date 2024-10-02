@@ -59,11 +59,20 @@ async receiveWebhook(@Body() body: any, @Res() res: Response) {
       const paymentData = paymentResponse.body;
 
       const status = paymentData.status;
-      const email = paymentData.payer.email;
+      const donationId = paymentData.external_reference; // Obtiene el ID de la donación de la respuesta
 
-      // Si el pago es aprobado, enviamos el correo
-      if (status === 'approved') {
-        await this.mailService.sendThankYouEmail(email);
+      // Busca la donación en la base de datos para obtener el correo del pagador
+      const donation = await this.donationService.getDonationById(donationId);
+      
+      if (donation) {
+        const email = donation.payerEmail; // Usamos el correo almacenado en la base de datos
+
+        // Si el pago es aprobado, enviamos el correo
+        if (status === 'approved') {
+          await this.mailService.sendThankYouEmail(email);
+        }
+      } else {
+        console.error(`No donation found for id: ${donationId}`);
       }
     }
 
@@ -73,6 +82,7 @@ async receiveWebhook(@Body() body: any, @Res() res: Response) {
     return res.status(500).json({ message: 'Webhook handling error', error: error.message });
   }
 }
+
 
 
   // Endpoint para la página de éxito (opcional)
@@ -91,7 +101,7 @@ async receiveWebhook(@Body() body: any, @Res() res: Response) {
   
     const userId = req.user.user_id; // Cambia 'user_id' a 'id'
     try {
-      const donations = await this.donationService.getUserDonations(userId);
+      const donations = await this.donationService.getDonationById(userId.toString());
       res.json(donations);
     } catch (error) {
       res.status(500).json({ message: 'Error fetching donations', error: error.message });
