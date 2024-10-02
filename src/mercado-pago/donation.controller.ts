@@ -12,34 +12,35 @@ export class DonationController {
     private readonly mailService: MailService,
   ) {}
 
-  // Endpoint para crear una orden de donación
-  @UseGuards(AuthGuard('jwt')) // Asegúrate de usar el guardia de autenticación
-  @Post('create-order')
-  async createOrder(
-    @Body() createDonationDto: { amount: number; description: string; payerEmail: string },
-    @Req() req: ExtendedRequest, // Usa la interfaz ExtendedRequest aquí
-    @Res() res: Response
-  ) {
-    try {
-      const userId = req.user?.user_id; // Accede a id de forma segura
 
-      if (!userId) {
-        return res.status(400).json({ message: 'User ID is missing' });
-      }
-
-      // Llamamos al servicio con los parámetros correctos, incluyendo userId
-      const order = await this.donationService.createDonation(
-        createDonationDto.amount,
-        createDonationDto.description,
-        createDonationDto.payerEmail,
-        userId // Aquí pasamos el userId
-      );
-
-      res.json(order); // Retorna la respuesta de MercadoPago o algún resultado
-    } catch (error) {
-      res.status(500).json({ message: 'Something went wrong', error: error.message });
-    }
-  }
+ 
+   @Post('create-order')
+   async createOrder(
+     @Body() createDonationDto: { userId: number; amount: number; description: string; payerEmail: string },
+     @Res() res: Response
+   ) {
+     try {
+       const { userId, amount, description, payerEmail } = createDonationDto;
+ 
+       // Validar que el userId esté presente
+       if (!userId) {
+         return res.status(400).json({ message: 'User ID is missing' });
+       }
+ 
+       // Llamamos al servicio para crear la donación
+       const order = await this.donationService.createDonation(
+         amount,
+         description,
+         payerEmail,
+         userId // Aquí pasamos el userId
+       );
+ 
+       return res.json(order); // Retorna el resultado de la donación
+     } catch (error) {
+       return res.status(500).json({ message: 'Something went wrong', error: error.message });
+     }
+   }
+ 
 
   // Endpoint para el webhook
   @Post('webhook')

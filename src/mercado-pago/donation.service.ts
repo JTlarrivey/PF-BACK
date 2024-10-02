@@ -18,13 +18,13 @@ export class DonationsService {
   }
 
   // Crear donación
-  async createDonation(amount: number, description: string, payerEmail: string, userId: number | null) {
+  async createDonation(amount: number, description: string, payerEmail: string, userId: number) {
     // Validar que el amount sea un número positivo
     if (typeof amount !== 'number' || amount <= 0) {
       throw new Error("El amount debe ser un número válido mayor que cero.");
     }
-  
-    // Crear la donación en la base de datos primero
+
+    // Crear la donación en la base de datos
     const newDonation = await this.prisma.donation.create({
       data: {
         payerEmail: payerEmail,
@@ -33,7 +33,7 @@ export class DonationsService {
         eventDate: new Date(),
         eventType: 'create',
         rawWebhookData: {}, // Inicializa como objeto vacío si es Json
-        preferenceId: null, 
+        preferenceId: null,
         user: {
           connect: { user_id: userId }, // Cambia `id` por `user_id`
         },
