@@ -32,4 +32,21 @@ export class MailService {
             throw new BadRequestException('Error al enviar el correo de agradecimiento');
         }
     }
-}
+    async sendMail(to: string, subject: string, text: string, html: string) {
+        const mailOptions = {
+          from: process.env.EMAIL_USER,
+          to,
+          subject,
+          text,
+          html,
+        };
+    
+        try {
+          await this.transporter.sendMail(mailOptions);
+          console.log('Correo enviado');
+        } catch (error) {
+          console.error('Error al enviar el correo:', error);
+          throw new BadRequestException('Error al enviar el correo');
+        }
+      }
+    }
