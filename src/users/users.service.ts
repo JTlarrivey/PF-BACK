@@ -126,5 +126,42 @@ export class UsersService {
 
     });
   }
+
+// Método para obtener el historial de un usuario
+async getUserHistory(userId: number): Promise<any> {
+    const user = await this.prisma.user.findUnique({
+        where: { user_id: userId },
+        include: {
+            reviews: {
+                where: { isDeleted: false },
+                select: {
+                    review_id: true,
+                    content: true,
+                    rating: true,
+                    review_date: true,
+                    book: {
+                        select: {
+                            title: true,
+                            book_id: true,
+                        }
+                    },
+                }
+            },
+        }
+    });
+
+    if (!user || user.isDeleted) {
+        throw new NotFoundException('User not found or deleted');
+    }
+
+    // Excluyendo información sensible del usuario
+    const { password, isAdmin, ...userData } = user;
+    
+    return {
+        user: userData,
+        reviews: user.reviews,
+    };
+}
+
 }
 
