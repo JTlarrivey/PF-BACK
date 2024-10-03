@@ -124,8 +124,8 @@ export class UsersService {
         where: { user_id },
         data: { isAdmin },
 
-    });
-  }
+    });
+}
 
 // Método para obtener el historial de un usuario
 async getUserHistory(userId: number): Promise<any> {

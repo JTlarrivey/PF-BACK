@@ -119,6 +119,7 @@ async deleteUser(@Param('id') id: string) {
         } catch (error) {
             throw new NotFoundException('User not found');
         }
+    }
 
     // Ruta para que los administradores puedan ver el historial de un usuario
     @ApiBearerAuth()
@@ -129,5 +130,7 @@ async deleteUser(@Param('id') id: string) {
         const userId = Number(id);
         return this.usersService.getUserHistory(userId);
 
+        }
     }
-}
+
+
