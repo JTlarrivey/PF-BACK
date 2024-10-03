@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { ApiTags } from '@nestjs/swagger';
+import { CategoriesDto } from './categories.dto';
 
 @ApiTags('Categories')
 @Controller('categories')
@@ -20,13 +21,13 @@ export class CategoriesController {
   }
 
   @Post()
-  async createCategory(@Body('name') name: string) {
-    return this.categoriesService.createCategory(name);
+  async createCategory(@Body() categoryDto: CategoriesDto) {
+    return this.categoriesService.createCategory(categoryDto.name);
   }
 
   @Put(':id')
-  async updateCategory(@Param('id') id: string, @Body('name') name: string) {
-    return this.categoriesService.updateCategory(Number(id), name);
+  async updateCategory(@Param('id') id: string, @Body() categoryDto: CategoriesDto) {
+    return this.categoriesService.updateCategory(Number(id), categoryDto.name);
   }
 
   @Delete(':id')

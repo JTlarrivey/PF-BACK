@@ -123,6 +123,8 @@ export class UsersService {
     return this.prisma.user.update({
         where: { user_id },
         data: { isAdmin },
+
     });
   }
 }
+
