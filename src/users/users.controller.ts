@@ -100,4 +100,13 @@ async deleteUser(@Param('id') id: string) {
             throw new NotFoundException('User not found');
         }
     }
+    // Ruta para que los administradores puedan ver el historial de un usuario
+    @ApiBearerAuth()
+    @Get(':id/history')
+    @Roles(Role.Admin)
+    @UseGuards(AuthGuard, RolesGuard)
+    async getUserHistory(@Param('id') id: string) {
+        const userId = Number(id);
+        return this.usersService.getUserHistory(userId);
+    }
 }
