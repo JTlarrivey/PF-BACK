@@ -100,6 +100,26 @@ async deleteUser(@Param('id') id: string) {
             throw new NotFoundException('User not found');
         }
     }
+
+    @ApiBearerAuth()
+    @Put(':id/remove-admin')
+    @Roles(Role.Admin)
+    @UseGuards(AuthGuard, RolesGuard)
+    async removeUserAdmin(@Param('id') id: string, @Req() req: Request) {
+        const adminUser = req.user as User;  
+
+        // Verificación de que el usuario tiene el campo isAdmin
+        if (!adminUser || !adminUser.isAdmin) {
+            throw new ForbiddenException('You do not have permission to perform this action');
+        }
+
+        try {
+            const updatedUser = await this.usersService.updateUserRole(Number(id), false);
+            return { message: 'User is not an admin any more', user: updatedUser };
+        } catch (error) {
+            throw new NotFoundException('User not found');
+        }
+
     // Ruta para que los administradores puedan ver el historial de un usuario
     @ApiBearerAuth()
     @Get(':id/history')
@@ -108,5 +128,6 @@ async deleteUser(@Param('id') id: string) {
     async getUserHistory(@Param('id') id: string) {
         const userId = Number(id);
         return this.usersService.getUserHistory(userId);
+
     }
 }
