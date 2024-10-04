@@ -1,15 +1,12 @@
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Observable } from 'rxjs';
 import { Role } from 'src/users/roles.enum';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
-  canActivate(
-    context: ExecutionContext
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  canActivate(context: ExecutionContext): boolean {
     const requiredRoles = this.reflector.getAllAndOverride<Role[]>('roles', [
       context.getHandler(),
       context.getClass(),
@@ -22,17 +19,16 @@ export class RolesGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
 
-    if (!user || !user.roles) {
+    // Asegúrate de que user y isAdmin existan
+    if (!user || user.isAdmin === undefined) {
       throw new ForbiddenException('No tiene permisos suficientes');
     }
 
-    const hasRole = () =>
-      requiredRoles.some(role => user.roles.includes(role));
-
-    if (!hasRole()) {
+    // Verifica si el usuario es admin
+    if (!user.isAdmin) {
       throw new ForbiddenException('No tiene permiso para acceder a esta ruta');
     }
 
-    return true;
+    return true; // Permitir el acceso si el usuario es admin
   }
 }

@@ -11,6 +11,7 @@ import { ReviewsModule } from 'src/reviews/reviews.module';
 import { WebhookModule } from 'src/webhook/webhook.module';
 import { DonationModule } from 'src/mercado-pago/donation.module';
 import { JwtModule } from '@nestjs/jwt';
+import { AdminModule } from 'src/Admincharjs/admin.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -24,6 +25,8 @@ import { JwtModule } from '@nestjs/jwt';
     ReviewsModule,
     DonationModule,
     WebhookModule,
+    AdminModule,
+    
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,

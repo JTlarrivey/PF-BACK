@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+
+import { Injectable, NotFoundException, BadRequestException, InternalServerErrorException, ForbiddenException  } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
@@ -9,6 +10,7 @@ export class UsersService {
     constructor(private readonly prisma: PrismaService) {}
 
     async getUsers(): Promise<Omit<User, 'password' | 'isAdmin'>[]> {
+
         const users = await this.prisma.user.findMany({
             where: { isDeleted: false },
             include: {
@@ -21,12 +23,30 @@ export class UsersService {
                                         book_id: true,
                                         title: true,
                                         photoUrl: true,
+
+        try {
+            const users = await this.prisma.user.findMany({
+                where: { isDeleted: false },
+                include: {
+                    bookLists: {
+                        include: {
+                            books: { 
+                                include: {
+                                    book: { 
+                                        select: {
+                                            book_id: true,
+                                            title: true,
+                                            photoUrl: true,
+                                        },
+
                                     },
                                 },
                             },
                         },
                     },
+                    friends: true,
                 },
+
                 friends: true,
             },
         });
@@ -120,11 +140,15 @@ export class UsersService {
             return userWithoutSensitiveInfo;
         } catch (error) {
             if (error.code === 'P2002' && error.meta?.target.includes('email')) {
-                throw new NotFoundException('El email ya está en uso.');
+                throw new BadRequestException('El correo electrónico ya está en uso.');
+            } else if (error.code === 'P2025') {
+                throw new NotFoundException(`Usuario con id ${id} no encontrado para actualizar.`);
+            } else {
+                throw new InternalServerErrorException('Error al actualizar el usuario');
             }
-            throw error;
         }
     }
+
 
     async deleteUser(id: number, banUser: boolean = false): Promise<Omit<User, 'password' | 'isAdmin'>> {
         // Verificar si el usuario ya está eliminado o no existe
@@ -192,11 +216,4 @@ export class UsersService {
             throw new NotFoundException('Usuario no encontrado o eliminado.');
         }
 
-        const { password, isAdmin, ...userData } = user;
-    
-        return {
-            user: userData,
-            reviews: user.reviews,
-        };
-    }
-}
+   
