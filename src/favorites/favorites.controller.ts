@@ -2,7 +2,7 @@ import { Controller, Post, Delete, Param, Get, Body, Req, UseGuards, BadRequestE
 import { FavoritesService } from './favorites.service';
 import { AddFriendDto, RemoveFriendDto, GetUserFavoritesDto } from './favorites.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { ExtendedRequest } from 'src/interface/extended-request.interface';
 
 @ApiTags('Favorites')

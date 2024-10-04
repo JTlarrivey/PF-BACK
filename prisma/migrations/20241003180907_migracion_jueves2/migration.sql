@@ -5,7 +5,7 @@ CREATE TABLE "User" (
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "description" TEXT,
-    "isAdmin" BOOLEAN NOT NULL,
+    "isAdmin" BOOLEAN NOT NULL DEFAULT false,
     "registration_date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "photoUrl" TEXT,
     "isConfirmed" BOOLEAN NOT NULL DEFAULT false,
