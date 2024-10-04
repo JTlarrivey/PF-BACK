@@ -103,7 +103,7 @@ export class UsersService {
     }
 
 
-    async updateUser(id: number, data: updateUserDto): Promise<Omit<User, 'password' | 'isAdmin'>> {
+    async updateUser(id: number, data: Partial<updateUserDto>): Promise<Omit<User, 'password' | 'isAdmin'>> {
         if (data.password && typeof data.password === 'string') {
             data.password = await bcrypt.hash(data.password, 10);
         }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, NotFoundException, UseGuards, ForbiddenException, Req } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, NotFoundException, UseGuards, ForbiddenException, Req, UseInterceptors, UploadedFile, InternalServerErrorException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from '@prisma/client';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -10,11 +10,15 @@ import { Role } from './roles.enum';
 import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { BadRequestException } from '@nestjs/common';
 import { ConflictException } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { FileUploadService } from 'src/file-upload/file-upload.service';
 
 @ApiTags('Users')
 @Controller('users')
 export class UsersController {
-    constructor(private readonly usersService: UsersService) {}
+    constructor(private readonly usersService: UsersService,
+        private readonly fileUploadService: FileUploadService,
+    ) {}
     
     @ApiBearerAuth()
     @Get()
@@ -129,6 +133,41 @@ export class UsersController {
             return await this.usersService.getUserHistory(userId);
         } catch (error) {
             throw new BadRequestException('Error al obtener el historial del usuario');
+        }
+    }
+
+    @ApiBearerAuth()
+    @Put('profile/:id/upload-photo')
+    @UseGuards(AuthGuard)
+    @UseInterceptors(FileInterceptor('file'))
+    async uploadUserPhoto(
+        @UploadedFile() file: Express.Multer.File,
+        @Param('id') id: string,
+        @Req() req: Request,
+        ) { 
+        const user = req.user as User;
+        
+       // Verificar que el ID del usuario está presente
+        if (!id) {
+        throw new BadRequestException('El ID del usuario es obligatorio');
+        }
+
+       // Verificar si el usuario tiene permiso para actualizar su foto
+        if (!user || user.user_id !== Number(id)) {
+        throw new ForbiddenException('No tienes permiso para realizar esta acción');
+        }
+
+      // Verificar si se ha subido un archivo
+        if (!file) {
+        throw new BadRequestException('No se ha subido ningún archivo');
+        }
+
+        try {
+        // Llama al servicio para subir la imagen
+        const updatedUser = await this.fileUploadService.uploadImage(file, id);
+        return { message: 'Foto subida exitosamente', user: updatedUser };
+        } catch (error) { 
+        throw new InternalServerErrorException('Error al subir la foto del usuario');
         }
     }
 }

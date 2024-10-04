@@ -11,6 +11,8 @@ import { ReviewsModule } from 'src/reviews/reviews.module';
 import { WebhookModule } from 'src/webhook/webhook.module';
 import { DonationModule } from 'src/mercado-pago/donation.module';
 import { JwtModule } from '@nestjs/jwt';
+import { MulterModule } from '@nestjs/platform-express';
+import multer from 'multer';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -19,6 +21,9 @@ import { JwtModule } from '@nestjs/jwt';
     UsersModule,
     BooksModule,
     FileUploadModule,
+    MulterModule.register({
+      storage: multer.memoryStorage(),
+    }),
     CategoriesModule,
     AuthModule,
     ReviewsModule,
