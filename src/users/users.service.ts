@@ -10,7 +10,6 @@ export class UsersService {
     constructor(private readonly prisma: PrismaService) {}
 
     async getUsers(): Promise<Omit<User, 'password' | 'isAdmin'>[]> {
-
         const users = await this.prisma.user.findMany({
             where: { isDeleted: false },
             include: {
@@ -23,30 +22,12 @@ export class UsersService {
                                         book_id: true,
                                         title: true,
                                         photoUrl: true,
-
-        try {
-            const users = await this.prisma.user.findMany({
-                where: { isDeleted: false },
-                include: {
-                    bookLists: {
-                        include: {
-                            books: { 
-                                include: {
-                                    book: { 
-                                        select: {
-                                            book_id: true,
-                                            title: true,
-                                            photoUrl: true,
-                                        },
-
                                     },
                                 },
                             },
                         },
                     },
-                    friends: true,
                 },
-
                 friends: true,
             },
         });
@@ -59,7 +40,7 @@ export class UsersService {
                     photoUrl: bookListBook.book.photoUrl,
                 }))
             );
-    
+
             return {
                 ...userWithoutSensitiveInfo,
                 book: books,
@@ -215,5 +196,5 @@ export class UsersService {
         if (!user || user.isDeleted) {
             throw new NotFoundException('Usuario no encontrado o eliminado.');
         }
-
-   
+    }
+}
