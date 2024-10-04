@@ -54,6 +54,7 @@ model Book {
   favorites          Favorite[]
   photoUrl           String
   isDeleted          Boolean    @default(false)
+   createdAt          DateTime   @default(now()) // Agregar este campo
 }
 
 model Category {
