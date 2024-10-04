@@ -9,6 +9,7 @@ import { Roles } from 'src/decorators/roles.decorators';
 import { Role } from 'src/users/roles.enum';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { RolesGuard } from 'src/auth/guard/roles.guard';
+import { UserStatusGuard } from 'src/auth/guard/status.guard';
 
 
 @ApiTags('Books')
@@ -17,6 +18,7 @@ export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
   @Get()
+  @UseGuards(UserStatusGuard)
   async getAllBooks(
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '10',
@@ -29,6 +31,7 @@ export class BooksController {
   }
 
   @Get(':id')
+  @UseGuards(UserStatusGuard)
   async getBookById(@Param('id') id: string) {
     const foundBook = await this.booksService.getBookById(Number(id));
     if (!foundBook) throw new NotFoundException('Book not found');
@@ -36,6 +39,7 @@ export class BooksController {
   }
 
   @Post('filter')
+  @UseGuards(UserStatusGuard)
   async filterBooks(@Body() filterBooksDto: FilterBooksDto): Promise<Book[]> {
     const { title, author, page, limit } = filterBooksDto;
     const pageNum = page ?? 1;
@@ -45,6 +49,7 @@ export class BooksController {
   
   @ApiBearerAuth()
   @Put(':id')
+  @UseGuards(UserStatusGuard)
   async updateBook(@Param('id') id: string, @Body() data: Book) {
     try {
       return await this.booksService.updateBook(Number(id), data);
@@ -54,15 +59,16 @@ export class BooksController {
   }
 
   @Post(':id/description') // Endpoint para actualizar la descripción
+  @UseGuards(UserStatusGuard)
   async updateDescription(@Param('id') id: string, @Body() updateDescriptionDto: UpdateDescriptionDto) {
     return this.booksService.updateBookDescription(Number(id), updateDescriptionDto.description);
   }
   
   //Alta de libro-Admin
-  @ApiBearerAuth()
+@ApiBearerAuth()
 @Post()
 @Roles(Role.Admin)
-@UseGuards(AuthGuard, RolesGuard)
+@UseGuards(AuthGuard, RolesGuard, UserStatusGuard)
 async createBook(
   @Body() createBookDto: CreateBookDto, 
   @Req() req 
@@ -78,6 +84,7 @@ async createBook(
   
   @ApiBearerAuth()
   @Delete(':id')
+  @UseGuards(UserStatusGuard)
   async deleteBook(@Param('id') id: string) {
       try {
           const book = await this.booksService.deleteBook(Number(id));

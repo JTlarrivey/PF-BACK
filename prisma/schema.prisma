@@ -39,7 +39,8 @@ model User {
   friendOf          User[]     @relation("UserFriends")
   donations         Donation[] // Relación con Donaciones
   isDeleted         Boolean    @default(false)
-}
+  isBanned          Boolean    @default(false)
+  }  
 
 
 model Book {

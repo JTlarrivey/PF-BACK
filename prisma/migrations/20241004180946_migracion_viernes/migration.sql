@@ -10,6 +10,7 @@ CREATE TABLE "User" (
     "photoUrl" TEXT,
     "isConfirmed" BOOLEAN NOT NULL DEFAULT false,
     "isDeleted" BOOLEAN NOT NULL DEFAULT false,
+    "isBanned" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("user_id")
 );
