@@ -12,6 +12,8 @@ import { WebhookModule } from 'src/webhook/webhook.module';
 import { DonationModule } from 'src/mercado-pago/donation.module';
 import { JwtModule } from '@nestjs/jwt';
 import { AdminModule } from 'src/Admincharjs/admin.module';
+import { MulterModule } from '@nestjs/platform-express';
+import multer from 'multer';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -26,7 +28,9 @@ import { AdminModule } from 'src/Admincharjs/admin.module';
     DonationModule,
     WebhookModule,
     AdminModule,
-    
+    MulterModule.register({
+      storage: multer.memoryStorage(),
+    }),
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
