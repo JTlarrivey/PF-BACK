@@ -1,5 +1,5 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '../auth/auth.guard'; // Asegúrate de que la ruta sea correcta
+import { AuthGuard } from '../auth/guard/auth.guard'; // Asegúrate de que la ruta sea correcta
 import { RolesGuard } from '../auth/roles.guard'; // Asegúrate de que la ruta sea correcta
 import { AdminService } from './admin.service'; // Asegúrate de importar el servicio
 import { Roles } from '../decorators/roles.decorators'; // Ajusta la ruta según tu estructura

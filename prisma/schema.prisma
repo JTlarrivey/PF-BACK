@@ -23,7 +23,7 @@ model User {
   email             String     @unique
   password          String
   description       String?
-  isAdmin           Boolean
+  isAdmin           Boolean    @default(false)
   registration_date DateTime   @default(now())
   reviews           Review[]
   bookLists         BookList[]
