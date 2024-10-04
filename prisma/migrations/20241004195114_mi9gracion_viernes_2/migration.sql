@@ -24,6 +24,7 @@ CREATE TABLE "Book" (
     "description" TEXT NOT NULL,
     "photoUrl" TEXT NOT NULL,
     "isDeleted" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Book_pkey" PRIMARY KEY ("book_id")
 );
