@@ -5,6 +5,7 @@ import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ExtendedRequest } from 'src/interface/extended-request.interface';
 import { MailService } from 'src/mail/mail.service';
+import { UserStatusGuard } from 'src/auth/guard/status.guard';
 
 @Controller('donations')
 export class DonationController {
@@ -13,37 +14,39 @@ export class DonationController {
   ) {}
 
 
- 
-   @Post('create-order')
-   async createOrder(
-     @Body() createDonationDto: { userId: number; amount: number; description: string; payerEmail: string },
-     @Res() res: Response
-   ) {
-     try {
-       const { userId, amount, description, payerEmail } = createDonationDto;
- 
+
+@Post('create-order')
+@UseGuards(UserStatusGuard)
+    async createOrder(
+      @Body() createDonationDto: { userId: number; amount: number; description: string; payerEmail: string },
+      @Res() res: Response
+    ) {
+      try {
+        const { userId, amount, description, payerEmail } = createDonationDto;
+
        // Validar que el userId esté presente
-       if (!userId) {
-         return res.status(400).json({ message: 'User ID is missing' });
-       }
- 
+        if (!userId) {
+          return res.status(400).json({ message: 'User ID is missing' });
+        }
+
        // Llamamos al servicio para crear la donación
-       const order = await this.donationService.createDonation(
-         amount,
-         description,
-         payerEmail,
-         userId // Aquí pasamos el userId
-       );
- 
+        const order = await this.donationService.createDonation(
+          amount,
+          description,
+          payerEmail,
+          userId // Aquí pasamos el userId
+        );
+
        return res.json(order); // Retorna el resultado de la donación
-     } catch (error) {
-       return res.status(500).json({ message: 'Something went wrong', error: error.message });
-     }
-   }
- 
+      } catch (error) {
+        return res.status(500).json({ message: 'Something went wrong', error: error.message });
+      }
+    }
+
 
   // Endpoint para el webhook
   @Post('webhook')
+  @UseGuards(UserStatusGuard)
 async receiveWebhook(@Body() body: any, @Res() res: Response) {
   try {
     console.log('Webhook received:', body);
@@ -93,7 +96,7 @@ async receiveWebhook(@Body() body: any, @Res() res: Response) {
   }
 
   // Endpoint para obtener las donaciones del usuario autenticado
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), UserStatusGuard)
   @Get('user')
   async getUserDonations(@Req() req: ExtendedRequest, @Res() res: Response) {
     if (!req.user) {

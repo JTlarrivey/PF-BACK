@@ -9,6 +9,7 @@ import { Roles } from 'src/decorators/roles.decorators';
 import { Role } from 'src/users/roles.enum';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { RolesGuard } from 'src/auth/guard/roles.guard';
+import { UserStatusGuard } from 'src/auth/guard/status.guard';
 
 @ApiTags('Books')
 @Controller('books')
@@ -16,6 +17,7 @@ export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
   @Get()
+  @UseGuards(UserStatusGuard)
   async getAllBooks(
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '10',
@@ -32,6 +34,7 @@ export class BooksController {
   }
 
   @Get(':id')
+  @UseGuards(UserStatusGuard)
   async getBookById(@Param('id') id: string) {
     try {
       const foundBook = await this.booksService.getBookById(Number(id));
@@ -44,6 +47,7 @@ export class BooksController {
   }
 
   @Post('filter')
+  @UseGuards(UserStatusGuard)
   async filterBooks(@Body() filterBooksDto: FilterBooksDto): Promise<Book[]> {
     try {
       const { title, author, page, limit } = filterBooksDto;
@@ -57,6 +61,7 @@ export class BooksController {
   
   @ApiBearerAuth()
   @Put(':id')
+  @UseGuards(UserStatusGuard)
   async updateBook(@Param('id') id: string, @Body() data: Book) {
     try {
       return await this.booksService.updateBook(Number(id), data);
@@ -65,9 +70,11 @@ export class BooksController {
       throw new InternalServerErrorException('Error al actualizar el libro');
     }
   }
-  
+
+
   // Endpoint para actualizar la descripción
   @Post(':id/description')
+  @UseGuards(UserStatusGuard)
   async updateDescription(@Param('id') id: string, @Body() updateDescriptionDto: UpdateDescriptionDto) {
     try {
       return await this.booksService.updateBookDescription(Number(id), updateDescriptionDto.description);
@@ -77,10 +84,12 @@ export class BooksController {
   }
   
   //Alta de libro-Admin
+
+
   @ApiBearerAuth()
   @Post()
   @Roles(Role.Admin)
-  @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(AuthGuard, RolesGuard, UserStatusGuard)
   async createBook(
     @Body() createBookDto: CreateBookDto, 
     @Req() req 
@@ -94,10 +103,12 @@ export class BooksController {
     } catch (error) {
       throw new InternalServerErrorException('Error al crear el libro');
     }
+
   }
   
   @ApiBearerAuth()
   @Delete(':id')
+  @UseGuards(UserStatusGuard)
   async deleteBook(@Param('id') id: string) {
     try {
       await this.booksService.deleteBook(Number(id));
