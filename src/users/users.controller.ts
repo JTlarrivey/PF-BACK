@@ -8,96 +8,98 @@ import { Request } from 'express';
 import { Roles } from 'src/decorators/roles.decorators';
 import { Role } from './roles.enum';
 import { RolesGuard } from 'src/auth/guard/roles.guard';
+import { BadRequestException } from '@nestjs/common';
+import { ConflictException } from '@nestjs/common';
 
 @ApiTags('Users')
 @Controller('users')
 export class UsersController {
-
     constructor(private readonly usersService: UsersService) {}
     
     @ApiBearerAuth()
     @Get()
     async getUsers() {
-        return this.usersService.getUsers();
+        try {
+            return await this.usersService.getUsers();
+        } catch (error) {
+            throw new BadRequestException('No se encontraron usuarios');
+        }
     }
-    
+
     @ApiBearerAuth()
     @Get(':id')
     @UseGuards(AuthGuard)
     async getUserById(@Param('id') id: string) {
-    const foundUser = await this.usersService.getUserById(Number(id));
-    if (!foundUser) throw new NotFoundException('User not found');
-    return foundUser; 
+        try {
+            const foundUser = await this.usersService.getUserById(Number(id));
+            if (!foundUser) throw new NotFoundException('Usuario no encontrado');
+            return foundUser;
+        } catch (error) {
+            throw error instanceof NotFoundException ? error : new BadRequestException('Error al obtener el usuario');
+        }
     }
-    
+
     @ApiBearerAuth()
     @Get(':id/activity')
     async getUserActivity(@Param('id') id: string) {
-    const userId = Number(id);
-    return this.usersService.getUserActivity(userId);
-}
+        try {
+            const userId = Number(id);
+            return await this.usersService.getUserActivity(userId);
+        } catch (error) {
+            throw new BadRequestException('Error al obtener la actividad del usuario');
+        }
+    }
 
     @Post()
     async createUser(@Body() data: Omit<User, 'user_id'>) {
-        return this.usersService.createUser(data);
+        try {
+            return await this.usersService.createUser(data);
+        } catch (error) {
+            throw new BadRequestException('Error al crear el usuario');
+        }
     }
-    
+
     @ApiBearerAuth()
     @Put(':id')
     @UseGuards(AuthGuard)
-    async updateUser(
-    @Param('id') id: string,
-    @Body() data: updateUserDto
-) {
-    try {
-    return await this.usersService.updateUser(Number(id), data);
-    } catch (error) {
-    if (error instanceof NotFoundException) {
-    throw new NotFoundException('User does not exist');
-    } else if (error.message.includes('El email ya está en uso')) {
-    throw new NotFoundException('El email ya está en uso.');
-    }
-    throw error;
-    } 
-}
-
-@ApiBearerAuth()
-@Delete(':id')
-async deleteUser(@Param('id') id: string) {
-    try {
-        const user = await this.usersService.deleteUser(Number(id));
-        
-        // Si el usuario ya estaba eliminado, lanzar una excepción
-        if (!user) {
-            throw new NotFoundException('User does not exist or is already deleted');
-        }
-
-        return {
-            message: 'User deleted successfully'
-        };
-    } catch (error) {
-        throw new NotFoundException('User does not exist');
+    async updateUser(@Param('id') id: string, @Body() data: updateUserDto) {
+        try {
+            return await this.usersService.updateUser(Number(id), data);
+        } catch (error) {
+            if (error instanceof NotFoundException) {
+                throw new NotFoundException('El usuario no existe');
+            } else if (error.message.includes('El email ya está en uso')) {
+                throw new ConflictException('El email ya está en uso');
+            }
+            throw new BadRequestException('Error al actualizar el usuario');
         }
     }
-    
-    //Hacer un usuario Admin
+
+    @ApiBearerAuth()
+    @Delete(':id')
+    async deleteUser(@Param('id') id: string) {
+        try {
+            const user = await this.usersService.deleteUser(Number(id));
+            if (!user) throw new NotFoundException('El usuario no existe o ya ha sido eliminado');
+            return { message: 'Usuario eliminado con éxito' };
+        } catch (error) {
+            throw error instanceof NotFoundException ? error : new BadRequestException('Error al eliminar el usuario');
+        }
+    }
+
     @ApiBearerAuth()
     @Put(':id/make-admin')
     @Roles(Role.Admin)
     @UseGuards(AuthGuard, RolesGuard)
     async makeUserAdmin(@Param('id') id: string, @Req() req: Request) {
-        const adminUser = req.user as User;  
-
-        // Verificación de que el usuario tiene el campo isAdmin
-        if (!adminUser || !adminUser.isAdmin) {
-            throw new ForbiddenException('You do not have permission to perform this action');
-        }
+        const adminUser = req.user as User;
+        if (!adminUser?.isAdmin) throw new ForbiddenException('No tienes permiso para realizar esta acción');
 
         try {
             const updatedUser = await this.usersService.updateUserRole(Number(id), true);
-            return { message: 'User is now an admin', user: updatedUser };
+            return { message: 'El usuario ahora es administrador', user: updatedUser };
         } catch (error) {
-            throw new NotFoundException('User not found');
+            throw new BadRequestException('Error al promover al usuario a administrador');
         }
     }
 
@@ -106,31 +108,29 @@ async deleteUser(@Param('id') id: string) {
     @Roles(Role.Admin)
     @UseGuards(AuthGuard, RolesGuard)
     async removeUserAdmin(@Param('id') id: string, @Req() req: Request) {
-        const adminUser = req.user as User;  
-
-        // Verificación de que el usuario tiene el campo isAdmin
-        if (!adminUser || !adminUser.isAdmin) {
-            throw new ForbiddenException('You do not have permission to perform this action');
-        }
+        const adminUser = req.user as User;
+        if (!adminUser?.isAdmin) throw new ForbiddenException('No tienes permiso para realizar esta acción');
 
         try {
             const updatedUser = await this.usersService.updateUserRole(Number(id), false);
-            return { message: 'User is not an admin any more', user: updatedUser };
+            return { message: 'El usuario ya no es administrador', user: updatedUser };
         } catch (error) {
-            throw new NotFoundException('User not found');
+            throw new BadRequestException('Error al remover el rol de administrador del usuario');
         }
     }
 
-    // Ruta para que los administradores puedan ver el historial de un usuario
     @ApiBearerAuth()
     @Get(':id/history')
     @Roles(Role.Admin)
     @UseGuards(AuthGuard, RolesGuard)
     async getUserHistory(@Param('id') id: string) {
-        const userId = Number(id);
-        return this.usersService.getUserHistory(userId);
-
+        try {
+            const userId = Number(id);
+            return await this.usersService.getUserHistory(userId);
+        } catch (error) {
+            throw new BadRequestException('Error al obtener el historial del usuario');
         }
     }
+}
 
 
