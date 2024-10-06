@@ -24,7 +24,7 @@ export class ReviewsController {
     }
   }
 
-  @Get('/books/:book_id/reviews')
+  @Get('/books/:book_id')
   @UseGuards(UserStatusGuard)
   async getReviewsByBook(@Param('bookId', ParseIntPipe) book_id: number) {
     try {
