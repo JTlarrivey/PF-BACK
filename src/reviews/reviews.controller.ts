@@ -1,5 +1,5 @@
 
-import { Controller, Post, Body, Param, Get, BadRequestException, NotFoundException, InternalServerErrorException, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Param, Get, BadRequestException, NotFoundException, InternalServerErrorException, UseGuards, ParseIntPipe } from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './createReview.dto';
 import { ApiTags } from '@nestjs/swagger';
@@ -24,13 +24,13 @@ export class ReviewsController {
     }
   }
 
-  @Get('/book/:bookId')
-        @UseGuards(UserStatusGuard)
-  async getReviewsByBook(@Param('bookId') bookId: number) {
+  @Get('/books/:book_id/reviews')
+  @UseGuards(UserStatusGuard)
+  async getReviewsByBook(@Param('bookId', ParseIntPipe) book_id: number) {
     try {
-      const reviews = await this.reviewsService.getReviewsByBook(bookId);
+      const reviews = await this.reviewsService.getReviewsByBook(book_id);
       if (reviews.length === 0) {
-        throw new NotFoundException(`No se encontraron reviews para el libro con ID ${bookId}.`);
+        throw new NotFoundException(`No se encontraron reviews para el libro con ID ${book_id}.`);
       }
       return reviews;
     } catch (error) {
@@ -41,5 +41,4 @@ export class ReviewsController {
       }
     }
   }
-}
-
+}  
