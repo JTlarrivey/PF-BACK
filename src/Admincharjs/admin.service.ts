@@ -12,16 +12,21 @@ export class AdminService {
       return date.toISOString().split('T')[0]; // Formato YYYY-MM-DD
     }).reverse();
 
+    // Sumar las donaciones por cada día
     const donaciones = await Promise.all(
       labels.map(async (date) => {
-        return this.prisma.donation.count({
+        const result = await this.prisma.donation.aggregate({
+          _sum: {
+            transactionAmount: true, // Aquí utilizamos 'transactionAmount'
+          },
           where: {
             createdAt: {
-              gte: new Date(`${date}T00:00:00.000Z`),
-              lt: new Date(`${date}T23:59:59.999Z`),
+              gte: new Date(`${date}T00:00:00.000Z`), // Desde el inicio del día
+              lt: new Date(`${date}T23:59:59.999Z`),  // Hasta el final del día
             },
           },
         });
+        return result._sum.transactionAmount || 0; // Devuelve la suma o 0 si no hay donaciones ese día
       }),
     );
 
@@ -51,8 +56,11 @@ export class AdminService {
       }),
     );
 
-    // Obtén los últimos 10 usuarios registrados
+    // Obtén los últimos 10 usuarios registrados que no sean administradores
     const ultimosUsuarios = await this.prisma.user.findMany({
+      where: {
+        isAdmin: false, // Solo usuarios que no son administradores
+      },
       orderBy: {
         registration_date: 'desc',
       },
@@ -67,9 +75,20 @@ export class AdminService {
 
     return {
       labels,
-      donaciones,
-      libros,
-      usuarios,
+      dataset: [
+        {
+       
+          data: donaciones,
+        },
+        {
+         
+          data: libros,
+        },
+        {
+         
+          data: usuarios,
+        },
+      ],
       ultimosUsuarios, // Añade los últimos usuarios al resultado
     };
   }
