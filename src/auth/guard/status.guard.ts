@@ -9,7 +9,7 @@ export class UserStatusGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user = request.user; // el usuario autenticado
 
-    if (!!user.isDeleted || !!user.isBanned) {
+    if (user.isDeleted === true || user.isBanned === true) {
         throw new ForbiddenException('Usuario no autorizado para realizar esta acción.');
     }
 
