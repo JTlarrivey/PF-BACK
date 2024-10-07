@@ -14,6 +14,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { AdminModule } from 'src/Admincharjs/admin.module';
 import { MulterModule } from '@nestjs/platform-express';
 import multer from 'multer';
+import { MailModule } from 'src/mail/mail.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -28,6 +29,7 @@ import multer from 'multer';
     DonationModule,
     WebhookModule,
     AdminModule,
+    MailModule,
     MulterModule.register({
       storage: multer.memoryStorage(),
     }),
