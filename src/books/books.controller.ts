@@ -37,7 +37,7 @@ export class BooksController {
 }
 
   @Get(':id')
-  @UseGuards(UserStatusGuard)
+  @UseGuards(AuthGuard, UserStatusGuard)
   async getBookById(@Param('id') id: string) {
     try {
       const foundBook = await this.booksService.getBookById(Number(id));
@@ -50,7 +50,7 @@ export class BooksController {
   }
 
   @Post('filter')
-  // @UseGuards(UserStatusGuard)
+  @UseGuards(AuthGuard, UserStatusGuard)
   async filterBooks(
   @Query('title') title?: string, 
   @Query('author') author?: string, 
@@ -68,7 +68,7 @@ export class BooksController {
   
   @ApiBearerAuth()
   @Put(':id')
-  @UseGuards(UserStatusGuard)
+  @UseGuards(AuthGuard, UserStatusGuard)
   async updateBook(@Param('id') id: string, @Body() data: Book) {
     try {
       return await this.booksService.updateBook(Number(id), data);
@@ -81,7 +81,7 @@ export class BooksController {
 
   // Endpoint para actualizar la descripción
   @Post(':id/description')
-  @UseGuards(UserStatusGuard)
+  @UseGuards(AuthGuard, UserStatusGuard)
   async updateDescription(@Param('id') id: string, @Body() updateDescriptionDto: UpdateDescriptionDto) {
     try {
       return await this.booksService.updateBookDescription(Number(id), updateDescriptionDto.description);
@@ -115,7 +115,7 @@ export class BooksController {
   
   @ApiBearerAuth()
   @Delete(':id')
-  @UseGuards(UserStatusGuard)
+  @UseGuards(AuthGuard, UserStatusGuard)
   async deleteBook(@Param('id') id: string) {
     try {
       await this.booksService.deleteBook(Number(id));

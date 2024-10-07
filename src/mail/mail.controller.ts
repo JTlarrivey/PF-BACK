@@ -1,7 +1,9 @@
 import { MailService } from './mail.service'; // Asegúrate de importar MailService
 import { DonationsService } from 'src/mercado-pago/donation.service';
-import { BadRequestException, Body, Controller, Post, Res } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Post, Res, UseFilters, UseGuards } from '@nestjs/common';
 import { Response } from 'express'; // Importa Response desde express
+import { AuthGuard } from 'src/auth/guard/auth.guard';
+import { UserStatusGuard } from 'src/auth/guard/status.guard';
 
 @Controller('mail')
 export class MailController {  // Renombrado a MailController para reflejar mejor su función
@@ -12,6 +14,7 @@ export class MailController {  // Renombrado a MailController para reflejar mejo
 
   // Endpoint para el webhook de donaciones
   @Post('webhook')
+  @UseGuards(AuthGuard, UserStatusGuard)
   async receiveWebhook(@Body() body: any, @Res() res: Response) {
     try {
       // Maneja el webhook
@@ -34,6 +37,7 @@ export class MailController {  // Renombrado a MailController para reflejar mejo
 
   // Endpoint para el envío de correos masivos
   @Post('send-mass-emails')
+  @UseGuards(AuthGuard, UserStatusGuard)
   async sendMassEmails(
     @Body('emails') emails: string[],
     @Body('subject') subject: string,

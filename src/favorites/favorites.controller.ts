@@ -13,7 +13,7 @@ export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}
 
   @Post('add-friend')
-  @UseGuards(UserStatusGuard)
+  @UseGuards(AuthGuard, UserStatusGuard)
   async addFriend(@Body() addFriendDto: AddFriendDto, @Req() req: ExtendedRequest) {
     const userId = req.user.user_id;
     if (!userId || !addFriendDto.friendId) {
@@ -28,7 +28,7 @@ export class FavoritesController {
   }
 
   @Delete('remove-friend')
-  @UseGuards(UserStatusGuard)
+  @UseGuards(AuthGuard, UserStatusGuard)
   async removeFriend(@Body() removeFriendDto: RemoveFriendDto, @Req() req: ExtendedRequest) {
     const userId = req.user.user_id;
     if (!userId || !removeFriendDto.friendId) {
@@ -43,7 +43,7 @@ export class FavoritesController {
   }
 
   @Get('user/:userId')
-  @UseGuards(UserStatusGuard)
+  @UseGuards(AuthGuard, UserStatusGuard)
 async getUserFavorites(@Param('userId') userId: number, @Req() req: ExtendedRequest) {
   const requesterId = req.user.user_id;  // El ID del usuario que realiza la solicitud
 

@@ -46,7 +46,7 @@ export class DonationController {
 
   // Endpoint para el webhook
   @Post('webhook')
-  @UseGuards(UserStatusGuard)
+  @UseGuards(AuthGuard, UserStatusGuard)
 async receiveWebhook(@Body() body: any, @Res() res: Response) {
   try {
     console.log('Webhook received:', body);
