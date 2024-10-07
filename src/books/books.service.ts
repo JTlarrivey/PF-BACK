@@ -7,7 +7,9 @@ import { CreateBookDto } from './createbook.dto';
 export class BooksService {
   constructor(private prisma: PrismaService) {}
 
+
   async getAllBooks(page: number, limit: number): Promise<{ books: Book[], totalBooks: number }> {
+
     try {
       const skip = (page - 1) * limit;
   
