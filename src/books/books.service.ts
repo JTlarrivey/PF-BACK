@@ -7,6 +7,16 @@ import { CreateBookDto } from './createbook.dto';
 export class BooksService {
   constructor(private prisma: PrismaService) {}
 
+  async totalBooks(): Promise<number> {
+    try {
+      return await this.prisma.book.count({
+        where: { isDeleted: false },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to count the books');
+    }
+  }
+
   async getAllBooks(page: number, limit: number): Promise<Book[]> {
     try {
       const skip = (page - 1) * limit;
@@ -32,7 +42,7 @@ export class BooksService {
       if (!book) throw new NotFoundException('Libro no encontrado');
       return book;
     } catch (error) {
-      if (error instanceof NotFoundException) throw error;
+      if (error instanceof NotFoundException) throw error; 
       throw new InternalServerErrorException('Error al recuperar el libro');
     }
   }
