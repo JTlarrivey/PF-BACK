@@ -15,6 +15,12 @@ export class UserResponseDto {
   @IsOptional()
   isAdmin?: boolean; 
 
+  @IsBoolean()
+  isDeleted?: boolean;
+
+  @IsBoolean()
+  isBanned?: boolean;
+
   @IsOptional()
   @IsString()
   photoUrl?: string; 
