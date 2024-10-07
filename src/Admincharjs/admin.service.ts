@@ -56,8 +56,11 @@ export class AdminService {
       }),
     );
 
-    // Obtén los últimos 10 usuarios registrados
+    // Obtén los últimos 10 usuarios registrados que no sean administradores
     const ultimosUsuarios = await this.prisma.user.findMany({
+      where: {
+        isAdmin: false, // Solo usuarios que no son administradores
+      },
       orderBy: {
         registration_date: 'desc',
       },
@@ -72,9 +75,19 @@ export class AdminService {
 
     return {
       labels,
-      donaciones, // Donaciones como el total sumado de cada día
-      libros,
-      usuarios,
+      dataset: [
+        {
+          data: donaciones,
+        },
+        {
+         
+          data: libros,
+        },
+        {
+         
+          data: usuarios,
+        },
+      ],
       ultimosUsuarios, // Añade los últimos usuarios al resultado
     };
   }
