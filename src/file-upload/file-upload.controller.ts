@@ -12,7 +12,7 @@ export class FileUploadController {
 
     constructor(private readonly fileUploadService: FileUploadService) {}
     
-    @ApiBearerAuth()
+
     @Post('uploadImage/:id')
     @UseGuards(AuthGuard, UserStatusGuard)
     @UseInterceptors(FileInterceptor('file'))

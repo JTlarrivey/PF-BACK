@@ -31,12 +31,18 @@ async getAllBooks(
   @Query('page') page: string = '1',
   @Query('limit') limit: string = '10',
 ): Promise<Book[]> {
+
   try {
     const pageNum = parseInt(page, 10);
     const limitNum = parseInt(limit, 10);
     const validPage = isNaN(pageNum) ? 1 : pageNum;
     const validLimit = isNaN(limitNum) ? 10 : (limitNum > 50 ? 50 : limitNum);
-    return await this.booksService.getAllBooks(validPage, validLimit);
+
+
+    const { books, totalBooks } = await this.booksService.getAllBooks(validPage, validLimit);
+
+    return { books, totalBooks };
+
   } catch (error) {
     throw new InternalServerErrorException('Error al recuperar los libros');
   }
