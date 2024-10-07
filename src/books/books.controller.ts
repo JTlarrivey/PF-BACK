@@ -17,7 +17,8 @@ export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
   @Get()
-  // @UseGuards(UserStatusGuard)
+
+  @UseGuards(AuthGuard, UserStatusGuard)
   async getAllBooks(
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '10',
