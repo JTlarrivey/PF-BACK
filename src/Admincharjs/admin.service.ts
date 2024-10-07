@@ -12,16 +12,21 @@ export class AdminService {
       return date.toISOString().split('T')[0]; // Formato YYYY-MM-DD
     }).reverse();
 
+    // Sumar las donaciones por cada día
     const donaciones = await Promise.all(
       labels.map(async (date) => {
-        return this.prisma.donation.count({
+        const result = await this.prisma.donation.aggregate({
+          _sum: {
+            transactionAmount: true, // Aquí utilizamos 'transactionAmount'
+          },
           where: {
             createdAt: {
-              gte: new Date(`${date}T00:00:00.000Z`),
-              lt: new Date(`${date}T23:59:59.999Z`),
+              gte: new Date(`${date}T00:00:00.000Z`), // Desde el inicio del día
+              lt: new Date(`${date}T23:59:59.999Z`),  // Hasta el final del día
             },
           },
         });
+        return result._sum.transactionAmount || 0; // Devuelve la suma o 0 si no hay donaciones ese día
       }),
     );
 
@@ -67,7 +72,7 @@ export class AdminService {
 
     return {
       labels,
-      donaciones,
+      donaciones, // Donaciones como el total sumado de cada día
       libros,
       usuarios,
       ultimosUsuarios, // Añade los últimos usuarios al resultado
