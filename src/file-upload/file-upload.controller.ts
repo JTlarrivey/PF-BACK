@@ -3,6 +3,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { FileUploadService } from './file-upload.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UserStatusGuard } from 'src/auth/guard/status.guard';
+import { AuthGuard } from 'src/auth/guard/auth.guard';
 
 @ApiTags('Files')
 @Controller('files')
@@ -13,7 +14,7 @@ export class FileUploadController {
     
     @ApiBearerAuth()
     @Post('uploadImage/:id')
-    @UseGuards(UserStatusGuard)
+    @UseGuards(AuthGuard, UserStatusGuard)
     @UseInterceptors(FileInterceptor('file'))
     async uploadImage(
         @Param('id') userId: string,

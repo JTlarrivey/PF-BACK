@@ -4,14 +4,15 @@ import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './createReview.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { UserStatusGuard } from 'src/auth/guard/status.guard';
+import { AuthGuard } from 'src/auth/guard/auth.guard';
 
 @ApiTags('Reviews')
 @Controller('reviews')
+@UseGuards(AuthGuard, UserStatusGuard)
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
   @Post()
-        @UseGuards(UserStatusGuard)
   async createReview(@Body() createReviewDto: CreateReviewDto) {
     try {
       return await this.reviewsService.createReview(createReviewDto);
@@ -25,7 +26,6 @@ export class ReviewsController {
   }
 
   @Get('/books/:book_id')
-  @UseGuards(UserStatusGuard)
   async getReviewsByBook(@Param('bookId', ParseIntPipe) book_id: number) {
     try {
       const reviews = await this.reviewsService.getReviewsByBook(book_id);
