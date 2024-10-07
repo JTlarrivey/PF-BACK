@@ -17,7 +17,7 @@ export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
   @Get()
-  @UseGuards(UserStatusGuard)
+  // @UseGuards(UserStatusGuard)
   async getAllBooks(
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '10',
@@ -47,17 +47,21 @@ export class BooksController {
   }
 
   @Post('filter')
-  @UseGuards(UserStatusGuard)
-  async filterBooks(@Body() filterBooksDto: FilterBooksDto): Promise<Book[]> {
-    try {
-      const { title, author, page, limit } = filterBooksDto;
-      const pageNum = page ?? 1;
-      const limitNum = limit ?? 10;
-      return await this.booksService.filterBooks(title, author, pageNum, limitNum);
-    } catch (error) {
-      throw new InternalServerErrorException('Error al filtrar los libros');
-    }
+  // @UseGuards(UserStatusGuard)
+  async filterBooks(
+  @Query('title') title?: string, 
+  @Query('author') author?: string, 
+  @Query('page') page?: number, 
+  @Query('limit') limit?: number
+  ): Promise<Book[]> {
+  try {
+    const pageNum = page ? Number(page) : 1;
+    const limitNum = limit ? Number(limit) : 10;
+    return await this.booksService.filterBooks(title, author, pageNum, limitNum);
+  } catch (error) {
+    throw new InternalServerErrorException('Error al filtrar los libros');
   }
+}
   
   @ApiBearerAuth()
   @Put(':id')
