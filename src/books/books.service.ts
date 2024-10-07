@@ -5,12 +5,17 @@ import { CreateBookDto } from './createbook.dto';
 
 @Injectable()
 export class BooksService {
+  totalBooks(): number {
+    throw new Error('Method not implemented.');
+  }
   constructor(private prisma: PrismaService) {}
 
-  async getAllBooks(page: number, limit: number): Promise<Book[]> {
+  async getAllBooks(page: number, limit: number): Promise<{ books: Book[], totalBooks: number }> {
     try {
       const skip = (page - 1) * limit;
-      return await this.prisma.book.findMany({
+  
+      // Obtener los libros paginados
+      const books = await this.prisma.book.findMany({
         where: { isDeleted: false },
         skip: skip,
         take: limit,
@@ -18,11 +23,19 @@ export class BooksService {
           categories: true
         }
       });
+  
+      // Contar el total de libros no eliminados
+      const totalBooks = await this.prisma.book.count({
+        where: { isDeleted: false }
+      });
+  
+      // Devolver ambos valores en un objeto
+      return { books, totalBooks };
     } catch (error) {
       throw new InternalServerErrorException('No se pudieron recuperar los libros');
     }
   }
-
+  
   async getBookById(book_id: number): Promise<Book | null> {
     try {
       const book = await this.prisma.book.findUnique({
