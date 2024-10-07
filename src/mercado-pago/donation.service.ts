@@ -55,7 +55,7 @@ export class DonationsService {
         failure: "http://localhost:3000/donations/failure",
         pending: "http://localhost:3000/donations/pending",
       },
-      notification_url: "https://fc17-2802-8010-21a6-2c01-7c78-163b-ad41-2a59.ngrok-free.app/donations/webhook",
+      notification_url: "https://booknity-api.onrender.com/donations/webhook",
       payer: {
         email: payerEmail,
       },
