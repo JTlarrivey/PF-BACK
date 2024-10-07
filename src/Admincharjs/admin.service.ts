@@ -77,7 +77,6 @@ export class AdminService {
       labels,
       dataset: [
         {
-       
           data: donaciones,
         },
         {
