@@ -17,7 +17,7 @@ export class BooksService {
         take: limit,
         include: {
           categories: true
-        }
+        } 
       });
   
       const totalBooks = await this.prisma.book.count({
