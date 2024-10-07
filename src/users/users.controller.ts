@@ -13,14 +13,15 @@ import { ConflictException } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileUploadService } from 'src/file-upload/file-upload.service';
 
+
 @ApiTags('Users')
 @Controller('users')
+
 export class UsersController {
     constructor(private readonly usersService: UsersService,
         private readonly fileUploadService: FileUploadService
     ) {}
-    
-    @ApiBearerAuth()
+
     @Get()
     async getUsers() {
         try {
@@ -30,7 +31,7 @@ export class UsersController {
         }
     }
 
-    @ApiBearerAuth()
+    
     @Get(':id')
     @UseGuards(AuthGuard)
     async getUserById(@Param('id') id: string) {
@@ -43,7 +44,7 @@ export class UsersController {
         }
     }
 
-    @ApiBearerAuth()
+
     @Get(':id/activity')
     async getUserActivity(@Param('id') id: string) {
         try {
@@ -63,7 +64,7 @@ export class UsersController {
         }
     }
 
-    @ApiBearerAuth()
+
     @Put(':id')
     @UseGuards(AuthGuard)
     async updateUser(@Param('id') id: string, @Body() data: updateUserDto) {
@@ -79,7 +80,6 @@ export class UsersController {
         }
     }
 
-    @ApiBearerAuth()
     @Delete(':id')
     async deleteUser(@Param('id') id: string) {
         try {
@@ -91,7 +91,6 @@ export class UsersController {
         }
     }
 
-    @ApiBearerAuth()
     @Put(':id/make-admin')
     @Roles(Role.Admin)
     @UseGuards(AuthGuard, RolesGuard)
@@ -107,7 +106,6 @@ export class UsersController {
         }
     }
 
-    @ApiBearerAuth()
     @Put(':id/remove-admin')
     @Roles(Role.Admin)
     @UseGuards(AuthGuard, RolesGuard)
@@ -123,7 +121,6 @@ export class UsersController {
         }
     }
 
-    @ApiBearerAuth()
     @Get(':id/history')
     @Roles(Role.Admin)
     @UseGuards(AuthGuard, RolesGuard)
@@ -136,7 +133,6 @@ export class UsersController {
         }
     }
 
-    @ApiBearerAuth()
     @Put('profile/:id/upload-photo')
     @UseGuards(AuthGuard)
     @UseInterceptors(FileInterceptor('file'))

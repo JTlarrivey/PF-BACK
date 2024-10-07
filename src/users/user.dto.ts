@@ -39,10 +39,20 @@ export class CreateUserDto {
 
   @IsEmpty()
   @ApiHideProperty()
-  @IsEmpty()
   @IsOptional()
   
   isAdmin?: boolean; // Hazlo requerido o asegúrate de manejarlo en el servicio
+
+  @IsEmpty()
+  @ApiHideProperty()
+  
+  isDeleted: boolean;
+
+  @IsEmpty()
+  @ApiHideProperty()
+  
+  isBanned: boolean;
+  
 }
 
 export class LoginUserDto extends PickType(CreateUserDto, ['email', 'password']) {}
