@@ -1,6 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 
+
 @Injectable()
 export class MailService {
     private transporter;

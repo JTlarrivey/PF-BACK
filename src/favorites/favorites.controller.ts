@@ -9,7 +9,7 @@ import { UserStatusGuard } from 'src/auth/guard/status.guard';
 
 @ApiTags('Favorites')
 @Controller('favorites')
-@UseGuards(AuthGuard, UserStatusGuard)
+
 export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}
 
@@ -32,7 +32,7 @@ export class FavoritesController {
 
   @Delete('remove-friend')
 
-=======
+
   @UseGuards(AuthGuard, UserStatusGuard)
 
   async removeFriend(@Body() removeFriendDto: RemoveFriendDto, @Req() req: ExtendedRequest) {

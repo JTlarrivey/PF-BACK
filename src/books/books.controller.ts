@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, Post, Put, Query, Req, UseGuards, InternalServerErrorException } from '@nestjs/common';
 import { BooksService } from './books.service';
 import { Book } from '@prisma/client';
+import { BooksResponse } from 'src/interface/bookResponse.interface';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UpdateDescriptionDto } from './updateDescription.dto'; 
 import { CreateBookDto } from './createbook.dto';
@@ -14,6 +15,8 @@ import { UserStatusGuard } from 'src/auth/guard/status.guard';
 @Controller('books')
 export class BooksController {
   constructor(private readonly booksService: BooksService) {}
+
+
 
   @Get('total')
   async getTotalBooks(): Promise<{ totalBooks: number }> {
@@ -30,19 +33,16 @@ export class BooksController {
 async getAllBooks(
   @Query('page') page: string = '1',
   @Query('limit') limit: string = '10',
-): Promise<Book[]> {
-
+): Promise<BooksResponse> {  // Asegúrate de que el tipo sea BooksResponse
   try {
     const pageNum = parseInt(page, 10);
     const limitNum = parseInt(limit, 10);
     const validPage = isNaN(pageNum) ? 1 : pageNum;
     const validLimit = isNaN(limitNum) ? 10 : (limitNum > 50 ? 50 : limitNum);
 
-
     const { books, totalBooks } = await this.booksService.getAllBooks(validPage, validLimit);
 
-    return { books, totalBooks };
-
+    return { books, totalBooks }; // Devuelve el objeto
   } catch (error) {
     throw new InternalServerErrorException('Error al recuperar los libros');
   }

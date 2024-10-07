@@ -7,31 +7,28 @@ import { CreateBookDto } from './createbook.dto';
 export class BooksService {
   constructor(private prisma: PrismaService) {}
 
-
-  async getAllBooks(page: number, limit: number): Promise<{ books: Book[], totalBooks: number }> {
-
+  async totalBooks(): Promise<number> {
     try {
-      const skip = (page - 1) * limit;
-  
-      const books = await this.prisma.book.findMany({
-        where: { isDeleted: false },
-        skip: skip,
-        take: limit,
-        include: {
-          categories: true
-        } 
-      });
-  
-      const totalBooks = await this.prisma.book.count({
+      return await this.prisma.book.count({
         where: { isDeleted: false },
       });
-  
-      return { books, totalBooks };
     } catch (error) {
-      throw new InternalServerErrorException('No se pudieron recuperar los libros');
+      throw new InternalServerErrorException('Failed to count the books');
     }
   }
 
+ // books.service.ts
+async getAllBooks(page: number, limit: number): Promise<{ books: Book[]; totalBooks: number }> {
+  const [books, totalBooks] = await Promise.all([
+    this.prisma.book.findMany({
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
+    this.prisma.book.count(), // Devuelve el número total de libros
+  ]);
+
+  return { books, totalBooks };
+}
   async getBookById(book_id: number): Promise<Book | null> {
     try {
       const book = await this.prisma.book.findUnique({
@@ -129,6 +126,6 @@ export class BooksService {
       });
     } catch (error) {
       throw new InternalServerErrorException('Error al crear el libro');
-    }
-  }
+    }
+  }
 }

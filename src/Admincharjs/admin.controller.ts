@@ -6,12 +6,13 @@ import { Roles } from '../decorators/roles.decorators'; // Ajusta la ruta según
 import { Role } from 'src/users/roles.enum'; // Asegúrate de importar tu enum de roles
 
 @Controller('admin')
-@UseGuards(AuthGuard, RolesGuard) // Aplica ambos guards
+
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
   @Get('graph')
   @Roles(Role.Admin) // Usa el decorador de roles para especificar que solo los administradores pueden acceder
+  @UseGuards(AuthGuard, RolesGuard) // Aplica ambos guards
   async getGraphData() {
     return this.adminService.getStats(); // Llama al método de servicio para obtener datos
   }

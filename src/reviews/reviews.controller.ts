@@ -8,7 +8,7 @@ import { AuthGuard } from 'src/auth/guard/auth.guard';
 
 @ApiTags('Reviews')
 @Controller('reviews')
-@UseGuards(AuthGuard, UserStatusGuard)
+
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
