@@ -1,6 +1,6 @@
-import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, Post, Put, Query, Req, UseGuards, InternalServerErrorException } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, Post, Put, Query, Req, UseGuards, InternalServerErrorException, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
 import { BooksService } from './books.service';
-import { Book } from '@prisma/client';
+import { Book, User } from '@prisma/client';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UpdateDescriptionDto } from './updateDescription.dto'; 
 import { CreateBookDto } from './createbook.dto';
@@ -9,12 +9,16 @@ import { Role } from 'src/users/roles.enum';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { UserStatusGuard } from 'src/auth/guard/status.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { FileUploadService } from 'src/file-upload/file-upload.service';
 
 
 @ApiTags('Books')
 @Controller('books')
 export class BooksController {
-  constructor(private readonly booksService: BooksService) {}
+  constructor(private readonly booksService: BooksService,
+    private readonly fileUploadService: FileUploadService
+  ) {}
 
 @Get('total')
   async getTotalBooks(): Promise<{ totalBooks: number }> {
@@ -134,5 +138,35 @@ async getAllBooks(
       if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException('Error al eliminar el libro');
     }
+  }
+
+  
+
+  @ApiBearerAuth()
+  @Put(':id/upload-image')
+  @UseGuards(AuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadBookImage(
+      @UploadedFile() file: Express.Multer.File,
+      @Param('id') id: string,
+      @Req() req: Request,
+  ) {
+      // Verificar que el ID del libro está presente
+      if (!id) {
+          throw new BadRequestException('El ID del libro es obligatorio');
+      }
+
+      // Verificar si se ha subido un archivo
+      if (!file) {
+          throw new BadRequestException('No se ha subido ningún archivo');
+      }
+
+      try {
+          // Llama al servicio para subir la imagen
+          const updatedBook = await this.fileUploadService.uploadImage(file, id);
+          return { message: 'Imagen del libro subida exitosamente', book: updatedBook };
+      } catch (error) {
+          throw new InternalServerErrorException('Error al subir la imagen del libro');
+      }
   }
 }

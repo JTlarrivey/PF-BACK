@@ -4,6 +4,7 @@ import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './createReview.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { UserStatusGuard } from 'src/auth/guard/status.guard';
+import { AuthGuard } from 'src/auth/guard/auth.guard';
 
 @ApiTags('Reviews')
 @Controller('reviews')
@@ -11,22 +12,22 @@ export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
   @Post()
-        @UseGuards(UserStatusGuard)
+        @UseGuards(AuthGuard, UserStatusGuard)
   async createReview(@Body() createReviewDto: CreateReviewDto) {
     try {
       return await this.reviewsService.createReview(createReviewDto);
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw new BadRequestException('Datos inválidos o incompletos.');
-      } else {
+      } else { 
         throw new InternalServerErrorException('Error al crear la review.');
       }
     }
   }
 
   @Get('/books/:book_id')
-  @UseGuards(UserStatusGuard)
-  async getReviewsByBook(@Param('bookId', ParseIntPipe) book_id: number) {
+  @UseGuards(AuthGuard, UserStatusGuard)
+  async getReviewsByBook(@Param('book_Id', ParseIntPipe) book_id: number) {
     try {
       const reviews = await this.reviewsService.getReviewsByBook(book_id);
       if (reviews.length === 0) {
