@@ -47,6 +47,7 @@ export class AdminService {
       labels.map(async (date) => {
         return this.prisma.user.count({
           where: {
+            isAdmin: false, // Solo contar usuarios que no sean administradores
             registration_date: {
               gte: new Date(`${date}T00:00:00.000Z`),
               lt: new Date(`${date}T23:59:59.999Z`),
