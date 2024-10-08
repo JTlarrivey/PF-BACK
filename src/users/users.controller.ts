@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, NotFoundException, UseGuards, ForbiddenException, Req, UseInterceptors, UploadedFile, InternalServerErrorException } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, NotFoundException, UseGuards, ForbiddenException, Req, UseInterceptors, UploadedFile, InternalServerErrorException, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from '@prisma/client';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -22,13 +22,21 @@ export class UsersController {
     
     @ApiBearerAuth()
     @Get()
-    async getUsers() {
-        try {
-            return await this.usersService.getUsers();
-        } catch (error) {
-            throw new BadRequestException('No se encontraron usuarios');
-        }
+    async getUsers(
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '10', 
+    ): Promise<Omit<User, 'password' | 'isAdmin'>[]> {
+    try {
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+    const validPage = isNaN(pageNum) ? 1 : pageNum;
+    const validLimit = isNaN(limitNum) ? 10 : (limitNum > 50 ? 50 : limitNum);
+
+    return await this.usersService.getUsers(validPage, validLimit);
+    } catch (error) {
+    throw new BadRequestException('No se encontraron usuarios');
     }
+}
 
     @ApiBearerAuth()
     @Get(':id')

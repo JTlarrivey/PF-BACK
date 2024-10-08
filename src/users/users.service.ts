@@ -9,45 +9,49 @@ import { updateUserDto } from './updateUsers.dto';
 export class UsersService {
     constructor(private readonly prisma: PrismaService) {}
 
-    async getUsers(): Promise<Omit<User, 'password' | 'isAdmin'>[]> {
+    async getUsers(page: number, limit: number): Promise<Omit<User, 'password' | 'isAdmin'>[]> {
+        const skip = (page - 1) * limit;
+    
         const users = await this.prisma.user.findMany({
-            where: { isDeleted: false },
-            include: {
-                bookLists: {
-                    include: {
-                        books: {
-                            include: {
-                                book: { 
-                                    select: {
-                                        book_id: true,
-                                        title: true,
-                                        photoUrl: true,
-                                    },
-                                },
-                            },
-                        },
+          where: { isDeleted: false },
+          include: {
+            bookLists: {
+              include: {
+                books: {
+                  include: {
+                    book: { 
+                      select: {
+                        book_id: true,
+                        title: true,
+                        photoUrl: true,
+                      },
                     },
+                  },
                 },
-                friends: true,
+              },
             },
+            friends: true,
+          },
+          skip,
+          take: limit,
         });
-
+    
         return users.map(({ password, isAdmin, bookLists, friends, ...userWithoutSensitiveInfo }) => {
-            const books = bookLists.flatMap(bookList => 
-                bookList.books.map(bookListBook => ({
-                    book_id: bookListBook.book.book_id,
-                    title: bookListBook.book.title,
-                    photoUrl: bookListBook.book.photoUrl,
-                }))
-            );
-
-            return {
-                ...userWithoutSensitiveInfo,
-                book: books,
-                friends: friends || [],
-            };
+          const books = bookLists.flatMap(bookList =>
+            bookList.books.map(bookListBook => ({
+              book_id: bookListBook.book.book_id,
+              title: bookListBook.book.title,
+              photoUrl: bookListBook.book.photoUrl,
+            }))
+          );
+    
+          return {
+            ...userWithoutSensitiveInfo,
+            book: books,
+            friends: friends || [],
+          };
         });
-    }
+      }
 
     async getUserById(id: number): Promise<Omit<User, 'password' | 'isAdmin'> | null> {
         const user = await this.prisma.user.findUnique({
