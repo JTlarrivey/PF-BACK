@@ -12,10 +12,10 @@ export class CreateReviewDto {
   rating: number;
 
   @IsInt()
-  userId: number;
+  user_Id: number;
 
   @IsInt()
-  bookId: number;
+  book_Id: number;
   
   @IsNotEmpty() 
   @IsDate()     

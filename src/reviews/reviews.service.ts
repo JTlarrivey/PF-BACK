@@ -10,8 +10,8 @@ export class ReviewsService {
   async createReview(data: CreateReviewDto): Promise<Review> {
     try {
       // Validar si el usuario o libro existen
-      const user = await this.prisma.user.findUnique({ where: { user_id: data.userId } });
-      const book = await this.prisma.book.findUnique({ where: { book_id: data.bookId } });
+      const user = await this.prisma.user.findUnique({ where: { user_id: data.user_Id } });
+      const book = await this.prisma.book.findUnique({ where: { book_id: data.book_Id } });
 
       if (!user) {
         throw new BadRequestException('El usuario especificado no existe.');
@@ -25,8 +25,8 @@ export class ReviewsService {
           content: data.content,
           rating: data.rating,
           review_date: new Date(),
-          user: { connect: { user_id: data.userId } },
-          book: { connect: { book_id: data.bookId } },
+          user: { connect: { user_id: data.user_Id } },
+          book: { connect: { book_id: data.book_Id } },
         },
       });
     } catch (error) {
