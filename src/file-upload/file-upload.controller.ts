@@ -3,6 +3,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { FileUploadService } from './file-upload.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UserStatusGuard } from 'src/auth/guard/status.guard';
+import { AuthGuard } from 'src/auth/guard/auth.guard';
 
 @ApiTags('Files')
 @Controller('files')
@@ -13,15 +14,15 @@ export class FileUploadController {
     
     @ApiBearerAuth()
     @Post('uploadImage/:id')
-    @UseGuards(UserStatusGuard)
+    @UseGuards(AuthGuard, UserStatusGuard)
     @UseInterceptors(FileInterceptor('file'))
     async uploadImage(
-        @Param('id') userId: string,
+        @Param('id') user_id: string,
         @UploadedFile(
             new ParseFilePipe({
                 validators: [
                     new MaxFileSizeValidator({
-                        maxSize: 2000000, // Tamaño máximo permitido en bytes (2MB por ejemplo)
+                        maxSize: 10000000, // Tamaño máximo permitido en bytes (2MB por ejemplo)
                         message: 'Supera el máximo permitido',
                     }),
                     new FileTypeValidator({
@@ -33,7 +34,7 @@ export class FileUploadController {
         
         file: Express.Multer.File,
     ) {
-        this.logger.log(`Uploading image for user ${userId}`);
-        return this.fileUploadService.uploadImage(file, userId);
+        this.logger.log(`Uploading image for user ${user_id}`);
+        return this.fileUploadService.uploadImage(file, user_id);
     }
 }
