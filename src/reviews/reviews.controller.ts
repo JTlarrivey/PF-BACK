@@ -25,6 +25,20 @@ export class ReviewsController {
     }
   }
 
+  @Get()
+  @UseGuards(AuthGuard, UserStatusGuard)
+  async getReviews() {
+    try {
+      return await this.reviewsService.getReviews();
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message);
+      } else {
+        throw new InternalServerErrorException('Error al obtener las reviews.');
+      }
+    }
+  }
+
   @Get('/books/:book_id')
   @UseGuards(AuthGuard, UserStatusGuard)
   async getReviewsByBook(@Param('book_Id', ParseIntPipe) book_id: number) {

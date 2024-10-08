@@ -36,6 +36,21 @@ export class ReviewsService {
       throw new InternalServerErrorException('Error al crear la review.');
     }
   }
+
+  // Método para obtener todas las reviews
+  async getReviews() {
+    try {
+      const reviews = await this.prisma.review.findMany({
+        include: {
+          user: true,
+          book: true,
+        },
+      });
+      return reviews;
+    } catch (error) {
+      throw new InternalServerErrorException('Error al obtener las reviews.');
+    }
+  }
   
   // Método para listar todas las reviews de un libro específico
   async getReviewsByBook(bookId: number) {
