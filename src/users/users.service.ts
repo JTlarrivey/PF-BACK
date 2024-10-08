@@ -1,4 +1,3 @@
-
 import { Injectable, NotFoundException, BadRequestException, InternalServerErrorException, ForbiddenException  } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User } from '@prisma/client';
@@ -13,45 +12,45 @@ export class UsersService {
         const skip = (page - 1) * limit;
     
         const users = await this.prisma.user.findMany({
-          where: { isDeleted: false },
-          include: {
-            bookLists: {
-              include: {
-                books: {
-                  include: {
+        where: { isDeleted: false },
+            include: {
+                bookLists: {
+                include: {
+                    books: {
+                    include: {
                     book: { 
-                      select: {
-                        book_id: true,
-                        title: true,
-                        photoUrl: true,
-                      },
+                        select: {
+                            book_id: true,
+                            title: true,
+                            photoUrl: true,
+                        },
                     },
-                  },
                 },
-              },
             },
-            friends: true,
-          },
-          skip,
-          take: limit,
+        },
+        },
+        friends: true,
+            },
+            skip,
+            take: limit,
         });
     
         return users.map(({ password, isAdmin, bookLists, friends, ...userWithoutSensitiveInfo }) => {
-          const books = bookLists.flatMap(bookList =>
-            bookList.books.map(bookListBook => ({
-              book_id: bookListBook.book.book_id,
-              title: bookListBook.book.title,
-              photoUrl: bookListBook.book.photoUrl,
+            const books = bookLists.flatMap(bookList =>
+                bookList.books.map(bookListBook => ({
+                book_id: bookListBook.book.book_id,
+                title: bookListBook.book.title,
+                photoUrl: bookListBook.book.photoUrl,
             }))
-          );
+        );
     
-          return {
-            ...userWithoutSensitiveInfo,
-            book: books,
-            friends: friends || [],
-          };
+            return {
+                ...userWithoutSensitiveInfo,
+                book: books,
+                friends: friends || [],
+            };
         });
-      }
+    }
 
     async getUserById(id: number): Promise<Omit<User, 'password' | 'isAdmin'> | null> {
         const user = await this.prisma.user.findUnique({
@@ -199,6 +198,6 @@ export class UsersService {
 
         if (!user || user.isDeleted) {
             throw new NotFoundException('Usuario no encontrado o eliminado.');
-        }
-    }
+       }
+    }
 }
