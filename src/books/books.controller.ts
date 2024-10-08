@@ -16,9 +16,7 @@ import { UserStatusGuard } from 'src/auth/guard/status.guard';
 export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
-
-
-  @Get('total')
+@Get('total')
   async getTotalBooks(): Promise<{ totalBooks: number }> {
   try {
     const totalBooks = await this.booksService.totalBooks();
@@ -66,19 +64,19 @@ async getAllBooks(
   @Post('filter')
   @UseGuards(AuthGuard, UserStatusGuard)
   async filterBooks(
-  @Query('title') title?: string, 
-  @Query('author') author?: string, 
-  @Query('page') page?: number, 
-  @Query('limit') limit?: number
+    @Query('title') title?: string, 
+    @Query('author') author?: string,      
+    @Query('page') page?: number, 
+    @Query('limit') limit?: number
   ): Promise<Book[]> {
-  try {
-    const pageNum = page ? Number(page) : 1;
-    const limitNum = limit ? Number(limit) : 10;
-    return await this.booksService.filterBooks(title, author, pageNum, limitNum);
-  } catch (error) {
-    throw new InternalServerErrorException('Error al filtrar los libros');
+    try {
+      const pageNum = page ? Number(page) : 1;
+      const limitNum = limit ? Number(limit) : 10;
+      return await this.booksService.filterBooks(title, author, pageNum, limitNum);
+    } catch (error) {
+      throw new InternalServerErrorException('Error al filtrar los libros');
+    }
   }
-}
   
   @ApiBearerAuth()
   @Put(':id')

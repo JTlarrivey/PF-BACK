@@ -5,10 +5,12 @@ import { CreateBookDto } from './createbook.dto';
 
 @Injectable()
 export class BooksService {
-  totalBooks(): number {
-    throw new Error('Method not implemented.');
-  }
   constructor(private prisma: PrismaService) {}
+  
+  async totalBooks(): Promise<number> {
+    return await this.prisma.book.count();
+  } 
+  
 
   async getAllBooks(page: number, limit: number): Promise<{ books: Book[] }> {
     try {
@@ -75,13 +77,19 @@ export class BooksService {
   async filterBooks(title?: string, author?: string, page: number = 1, limit: number = 10): Promise<Book[]> {
     try {
       const skip = (page - 1) * limit;
+  
+      // Condiciones dinámicas para los filtros de título y autor
+      const filters = [];
+      if (title) {
+        filters.push({ title: { contains: title, mode: 'insensitive' } });
+      }
+      if (author) {
+        filters.push({ author: { contains: author, mode: 'insensitive' } });
+      }
+  
+      // Consulta de libros, con o sin filtros
       return this.prisma.book.findMany({
-        where: {
-          AND: [
-            title ? { title: { contains: title, mode: 'insensitive' } } : {},
-            author ? { author: { contains: author, mode: 'insensitive' } } : {},
-          ],
-        },
+        where: filters.length > 0 ? { OR: filters } : {}, // Si no hay filtros, se consulta todo
         skip: skip,
         take: limit,
       });
