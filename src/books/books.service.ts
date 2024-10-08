@@ -10,7 +10,7 @@ export class BooksService {
   }
   constructor(private prisma: PrismaService) {}
 
-  async getAllBooks(page: number, limit: number): Promise<{ books: Book[], totalBooks: number }> {
+  async getAllBooks(page: number, limit: number): Promise<{ books: Book[] }> {
     try {
       const skip = (page - 1) * limit;
   
@@ -20,21 +20,16 @@ export class BooksService {
         skip: skip,
         take: limit,
         include: {
-          categories: true
-        }
+          categories: true, // Asegúrate de que esta relación exista en tu modelo
+        },
       });
   
-      // Contar el total de libros no eliminados
-      const totalBooks = await this.prisma.book.count({
-        where: { isDeleted: false }
-      });
-  
-      // Devolver ambos valores en un objeto
-      return { books, totalBooks };
+      return { books }; // Devuelve solo el array de libros
     } catch (error) {
       throw new InternalServerErrorException('No se pudieron recuperar los libros');
     }
   }
+  
   
   async getBookById(book_id: number): Promise<Book | null> {
     try {

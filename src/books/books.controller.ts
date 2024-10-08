@@ -29,25 +29,27 @@ export class BooksController {
   }
 }
 
-@Get()
+@Get('list')
 @UseGuards(AuthGuard, UserStatusGuard)
 async getAllBooks(
   @Query('page') page: string = '1',
   @Query('limit') limit: string = '10',
-): Promise<BooksResponse> {  // Asegúrate de que el tipo sea BooksResponse
+): Promise<{ books: Book[] }> {
   try {
     const pageNum = parseInt(page, 10);
     const limitNum = parseInt(limit, 10);
     const validPage = isNaN(pageNum) ? 1 : pageNum;
     const validLimit = isNaN(limitNum) ? 10 : (limitNum > 50 ? 50 : limitNum);
 
-    const { books, totalBooks } = await this.booksService.getAllBooks(validPage, validLimit);
+    // Llama al servicio para obtener los libros
+    const { books } = await this.booksService.getAllBooks(validPage, validLimit); // Aquí destructuramos
 
-    return { books, totalBooks }; // Devuelve el objeto
+    return { books }; // Devuelve solo los libros
   } catch (error) {
     throw new InternalServerErrorException('Error al recuperar los libros');
   }
 }
+
 
   @Get(':id')
   @UseGuards(AuthGuard, UserStatusGuard)
