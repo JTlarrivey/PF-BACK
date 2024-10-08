@@ -34,17 +34,17 @@ export class BooksController {
 async getAllBooks(
   @Query('page') page: string = '1',
   @Query('limit') limit: string = '10',
-): Promise<{ books: Book[] }> {
+): Promise<Book[]> {
   try {
     const pageNum = parseInt(page, 10);
-    const limitNum = parseInt(limit, 10);
+    const limitNum = parseInt(limit, 10); 
     const validPage = isNaN(pageNum) ? 1 : pageNum;
     const validLimit = isNaN(limitNum) ? 10 : (limitNum > 50 ? 50 : limitNum);
 
     // Llama al servicio para obtener los libros
-    const { books } = await this.booksService.getAllBooks(validPage, validLimit); // Aquí destructuramos
+    const { books } = await this.booksService.getAllBooks(validPage, validLimit);
 
-    return { books }; // Devuelve solo los libros
+    return books; // Devuelve directamente el array de libros
   } catch (error) {
     throw new InternalServerErrorException('Error al recuperar los libros');
   }
