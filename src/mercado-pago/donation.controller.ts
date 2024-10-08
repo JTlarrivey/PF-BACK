@@ -2,7 +2,7 @@ import { Controller, Post, Body, Res, Get, Req } from '@nestjs/common';
 import { DonationsService } from './donation.service';
 import { Response } from 'express';
 import { UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { ExtendedRequest } from 'src/interface/extended-request.interface';
 import { MailService } from 'src/mail/mail.service';
 import { UserStatusGuard } from 'src/auth/guard/status.guard';
@@ -19,7 +19,7 @@ export class DonationController {
 
 
 @Post('create-order')
-@UseGuards(UserStatusGuard)
+@UseGuards(AuthGuard, UserStatusGuard)
     async createOrder(
       @Body() createDonationDto: { userId: number; amount: number; description: string; payerEmail: string },
       @Res() res: Response
@@ -49,7 +49,7 @@ export class DonationController {
 
   // Endpoint para el webhook
   @Post('webhook')
-  @UseGuards(UserStatusGuard)
+  @UseGuards(AuthGuard, UserStatusGuard)
 async receiveWebhook(@Body() body: any, @Res() res: Response) {
   try {
     console.log('Webhook received:', body);
@@ -99,8 +99,9 @@ async receiveWebhook(@Body() body: any, @Res() res: Response) {
   }
 
   // Endpoint para obtener las donaciones del usuario autenticado
-  @UseGuards(AuthGuard('jwt'), UserStatusGuard)
+  
   @Get('user')
+  @UseGuards(AuthGuard, UserStatusGuard)
   async getUserDonations(@Req() req: ExtendedRequest, @Res() res: Response) {
     if (!req.user) {
       return res.status(401).json({ message: 'Unauthorized: User not found' });
