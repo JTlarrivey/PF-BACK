@@ -95,6 +95,32 @@ export class UsersService {
         };
     }
 
+    async searchUsers(name?: string, email?: string, page: number = 1, limit: number = 10): Promise<User[]> {
+        const skip = (page - 1) * limit;
+    
+        const filters = [];
+        if (name) {
+            filters.push({ name: { contains: name, mode: 'insensitive' } });
+        }
+        if (email) {
+            filters.push({ email: { contains: email, mode: 'insensitive' } });
+        }
+    
+        try {
+            return await this.prisma.user.findMany({
+            where: {
+                isDeleted: false,  
+                OR: filters.length > 0 ? filters : undefined,
+            },
+            skip,
+            take: limit,
+            });
+        } catch (error) {
+            console.error(error);  
+            throw new InternalServerErrorException('Error al obtener los usuarios');
+        }
+    }
+
     async createUser(data: Omit<User, 'user_id'>): Promise<User> {
         // No se requiere validación aquí porque es para la creación de un usuario nuevo
         return this.prisma.user.create({ data });
