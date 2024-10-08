@@ -178,8 +178,6 @@ export class UsersController {
         return { message: 'Foto subida exitosamente', user: updatedUser };
         } catch (error) { 
         throw new InternalServerErrorException('Error al subir la foto del usuario');
-        }
-    }
+        }
+    }
 }
-
-
