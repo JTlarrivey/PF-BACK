@@ -1,7 +1,6 @@
 import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, Post, Put, Query, Req, UseGuards, InternalServerErrorException } from '@nestjs/common';
 import { BooksService } from './books.service';
 import { Book } from '@prisma/client';
-
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UpdateDescriptionDto } from './updateDescription.dto'; 
 import { CreateBookDto } from './createbook.dto';
@@ -10,7 +9,7 @@ import { Role } from 'src/users/roles.enum';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { UserStatusGuard } from 'src/auth/guard/status.guard';
-import { BooksResponse } from 'src/interface/bookResponse.interface';
+
 
 @ApiTags('Books')
 @Controller('books')
@@ -44,7 +43,7 @@ async getAllBooks(
     // Llama al servicio para obtener los libros
     const { books } = await this.booksService.getAllBooks(validPage, validLimit);
 
-    return books; // Devuelve directamente el array de libros
+    return books; 
   } catch (error) {
     throw new InternalServerErrorException('Error al recuperar los libros');
   }
@@ -106,8 +105,6 @@ async getAllBooks(
   }
   
   //Alta de libro-Admin
-
-
   @ApiBearerAuth()
   @Post()
   @Roles(Role.Admin)
