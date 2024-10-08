@@ -2,7 +2,9 @@ import { MailService } from './mail.service'; // Asegúrate de importar MailServ
 import { DonationsService } from 'src/mercado-pago/donation.service';
 import { BadRequestException, Body, Controller, Post, Res } from '@nestjs/common';
 import { Response } from 'express'; // Importa Response desde express
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Mail')
 @Controller('mail')
 export class MailController {  // Renombrado a MailController para reflejar mejor su función
   constructor(

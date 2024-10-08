@@ -6,7 +6,10 @@ import { AuthGuard } from '@nestjs/passport';
 import { ExtendedRequest } from 'src/interface/extended-request.interface';
 import { MailService } from 'src/mail/mail.service';
 import { UserStatusGuard } from 'src/auth/guard/status.guard';
+import { ApiTags } from '@nestjs/swagger';
 
+
+@ApiTags('Donations')
 @Controller('donations')
 export class DonationController {
   constructor(private readonly donationService: DonationsService,

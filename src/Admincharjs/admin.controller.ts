@@ -1,9 +1,9 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '../auth/guard/auth.guard'; // Asegúrate de que la ruta sea correcta
-import { RolesGuard } from '../auth/roles.guard'; // Asegúrate de que la ruta sea correcta
-import { AdminService } from './admin.service'; // Asegúrate de importar el servicio
-import { Roles } from '../decorators/roles.decorators'; // Ajusta la ruta según tu estructura
-import { Role } from 'src/users/roles.enum'; // Asegúrate de importar tu enum de roles
+import { AuthGuard } from '../auth/guard/auth.guard'; 
+import { RolesGuard } from '../auth/guard/roles.guard'; 
+import { AdminService } from './admin.service'; 
+import { Roles } from '../decorators/roles.decorators'; 
+import { Role } from 'src/users/roles.enum'; 
 
 @Controller('admin')
 @UseGuards(AuthGuard, RolesGuard) // Aplica ambos guards
