@@ -12,6 +12,7 @@ import { BadRequestException } from '@nestjs/common';
 import { ConflictException } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileUploadService } from 'src/file-upload/file-upload.service';
+import { UserStatusGuard } from 'src/auth/guard/status.guard';
 
 @ApiTags('Users')
 @Controller('users')
@@ -59,6 +60,23 @@ export class UsersController {
             return await this.usersService.getUserActivity(userId);
         } catch (error) {
             throw new BadRequestException('Error al obtener la actividad del usuario');
+        }
+    }
+
+    @Post('search')
+    @UseGuards(AuthGuard, UserStatusGuard)
+    async searchUsers(
+    @Query('name') name?: string,
+    @Query('email') email?: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number
+    ): Promise<User[]> {
+        try {
+        const pageNum = page ? Number(page) : 1;
+        const limitNum = limit ? Number(limit) : 10;
+        return await this.usersService.searchUsers(name, email, pageNum, limitNum);
+        } catch (error) {
+            throw new InternalServerErrorException('Error al obtener los usuarios'); 
         }
     }
 
