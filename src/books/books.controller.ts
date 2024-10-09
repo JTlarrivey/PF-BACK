@@ -2,7 +2,8 @@ import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, P
 import { BooksService } from './books.service';
 import { Book, User } from '@prisma/client';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { UpdateDescriptionDto } from './updateDescription.dto'; 
+import { UpdateDescriptionDto } from './updateDescription.dto';
+import { UpdateBookDto } from './updatebook.dto'; 
 import { CreateBookDto } from './createbook.dto';
 import { Roles } from 'src/decorators/roles.decorators';
 import { Role } from 'src/users/roles.enum';
@@ -31,7 +32,7 @@ export class BooksController {
 }
 
 @Get('list')
-@UseGuards(AuthGuard, UserStatusGuard)
+
 async getAllBooks(
   @Query('page') page: string = '1',
   @Query('limit') limit: string = '10',
@@ -85,16 +86,29 @@ async getAllBooks(
   @ApiBearerAuth()
   @Put(':id')
   @UseGuards(AuthGuard, UserStatusGuard)
-  async updateBook(@Param('id') id: string, @Body() data: Book) {
+  async updateBook(@Param('id') id: string, @Body() data: UpdateBookDto) {
     try {
+      // Obtén el libro actual
+      const currentBook = await this.booksService.getBookById(Number(id));
+      if (!currentBook) throw new NotFoundException('Libro no encontrado');
+  
+      // Verifica si algún campo ha sido modificado
+      const isModified = Object.keys(data).some(
+        key => data[key] !== currentBook[key]
+      );
+  
+      if (!isModified) {
+        throw new BadRequestException('Debe modificar al menos un campo');
+      }
+  
+      // Si al menos un campo ha sido modificado, realiza la actualización
       return await this.booksService.updateBook(Number(id), data);
     } catch (error) {
-      if (error instanceof NotFoundException) throw error;
+      if (error instanceof NotFoundException || error instanceof BadRequestException) throw error;
       throw new InternalServerErrorException('Error al actualizar el libro');
     }
   }
-
-
+  
   // Endpoint para actualizar la descripción
   @Post(':id/description')
   @UseGuards(AuthGuard, UserStatusGuard)
