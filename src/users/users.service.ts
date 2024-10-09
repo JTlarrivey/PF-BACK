@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException, InternalServerErrorException, ForbiddenException  } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { User } from '@prisma/client';
+import { BookListBook, User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { updateUserDto } from './updateUsers.dto';
 
@@ -226,4 +226,21 @@ export class UsersService {
             throw new NotFoundException('Usuario no encontrado o eliminado.');
        }
     }
+async addBookToList(userId: number, listId: number, bookId: number): Promise<BookListBook> {
+    // Verificar que el usuario y la lista existen
+    const user = await this.prisma.user.findUnique({ where: { user_id: userId } });
+    const bookList = await this.prisma.bookList.findUnique({ where: { list_id: listId } });
+
+    if (!user || !bookList) {
+        throw new NotFoundException('Usuario o lista no encontrada.');
+    }
+
+    // Crear la relación en la tabla BookListBook
+    return this.prisma.bookListBook.create({
+        data: {
+            bookList: { connect: { list_id: listId } },
+            book: { connect: { book_id: bookId } },
+        },
+    });
+}
 }
