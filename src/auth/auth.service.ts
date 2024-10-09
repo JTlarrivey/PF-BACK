@@ -29,7 +29,7 @@ export class AuthService {
       },
     });
 
-    const confirmationUrl = `${process.env.APP_URL}/auth?token=${token}`;
+    const confirmationUrl = `${process.env.APP_URL}/auth/confirm?token=${token}`;
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -224,7 +224,7 @@ export class AuthService {
     }
   
     const resetToken = this.jwtService.sign({ email: user.email }, { expiresIn: '1h' });
-    const resetUrl = `${process.env.APP_URL}/auth/reset-password?token=${resetToken}`;
+    const resetUrl = `http://localhost:81/resetpassword?token=${resetToken}`;
   
     try {
       // Llamada al método `sendMail` con los 4 argumentos requeridos
