@@ -198,19 +198,8 @@ export class UsersController {
         throw new InternalServerErrorException('Error al subir la foto del usuario');
        }
     }
-@Post(':userId/lists/:listId/books')
-@UseGuards(AuthGuard)
-async addBookToList(
-    @Param('userId') userId: string,
-    @Param('listId') listId: string,
-    @Body('bookId') bookId: number,
-) {
-    try {
-        const userIdNum = Number(userId);
-        const listIdNum = Number(listId);
-        return await this.usersService.addBookToList(userIdNum, listIdNum, bookId);
-    } catch (error) {
-        throw new BadRequestException('Error al agregar libro a la lista.');
-    }
+@Post('book-list/:bookId')
+async addBookToUserList(@Param('bookId') bookId: number, @Body('userId') userId: number) {
+  return this.usersService.addBookToUserList(userId, bookId);
 }
 }
