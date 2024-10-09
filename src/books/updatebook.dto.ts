@@ -1,55 +1,27 @@
-import { Type } from 'class-transformer';
-import { IsString, IsNotEmpty, IsOptional, IsArray, ValidateNested, IsNumber } from 'class-validator';
-import { CategoriesDto } from 'src/categories/categories.dto';
+import { IsOptional, IsString, IsInt, IsArray, IsUrl } from 'class-validator';
 
 export class UpdateBookDto {
+  @IsOptional()
+  @IsString()
+  title?: string;
 
-/**
-   * Debe ser un string 
-   * @example "El cuento de janeiro"
-   */
-@IsString()
-@IsOptional()
-title?: string;
+  @IsOptional()
+  @IsString()
+  author?: string;
 
-/**
-   * Debe ser un string
-   * @example "Texto de prueba"
-   */
-@IsString()
-@IsOptional()
-description?: string;
+  @IsOptional()
+  @IsInt()
+  publication_year?: number;
 
-/**
-   * Debe ser un string
-   * @example "https://example.com/image.jpg"
-   */
-@IsString()
-@IsOptional()
-photoUrl?: string;
+  @IsOptional()
+  @IsString()
+  description?: string;
 
-/**
-   * Debe ser un string 
-   * @example "Gabriel Garcia Marquez"
-   */
-@IsString()
-@IsOptional()
-author?: string;
+  @IsOptional()
+  @IsUrl()
+  photoUrl?: string;
 
-/**
-   * Es un numero 
-   * @example 2022
-   */
-@IsNumber()
-@IsOptional()
-publication_year?: number;
-
-/**
-   * Es un array
-   * @example "[1, 2, 3]"
-   */
-@IsArray()
-@ValidateNested({ each: true })
-@Type(() => CategoriesDto) 
-categories?: { connect: { id: number }[] };
+  @IsOptional()
+  @IsArray()
+  categories?: { id: number }[];
 }

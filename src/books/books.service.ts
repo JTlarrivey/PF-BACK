@@ -2,6 +2,7 @@ import { Injectable, InternalServerErrorException, NotFoundException } from '@ne
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Book } from '@prisma/client';
 import { CreateBookDto } from './createbook.dto';
+import { UpdateBookDto } from './updatebook.dto';
 
 @Injectable()
 export class BooksService {
@@ -47,16 +48,51 @@ export class BooksService {
     }
   }
 
-  async updateBook(book_id: number, data: Partial<Omit<Book, 'book_id'>>): Promise<Book> {
+  async updateBook(book_id: number, data: UpdateBookDto): Promise<Book> {
     try {
-      const book = await this.prisma.book.update({
+      // Actualización de categorías, si están incluidas en la solicitud
+      if (data.categories) {
+        // Eliminar las categorías actuales
+        await this.prisma.book.update({
+          where: { book_id },
+          data: {
+            categories: {
+              set: [], // Elimina todas las relaciones con categorías existentes
+            },
+          },
+        });
+  
+        // Agregar las nuevas categorías
+        await this.prisma.book.update({
+          where: { book_id },
+          data: {
+            categories: {
+              connect: data.categories.map((category) => ({
+                id: category.id,
+              })), 
+            },
+          },
+        });
+      }
+  
+      // Actualizar los demás campos del libro
+      const updatedBook = await this.prisma.book.update({
         where: { book_id },
-        data,
+        data: {
+          title: data.title,
+          author: data.author,
+          publication_year: data.publication_year,
+          description: data.description,
+          photoUrl: data.photoUrl,
+        },
+        include: {
+          categories: true, 
+        },
       });
-      if (!book) throw new NotFoundException('Libro no encontrado');
-      return book;
+  
+      if (!updatedBook) throw new NotFoundException('Libro no encontrado');
+      return updatedBook;
     } catch (error) {
-      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException('Error al actualizar el libro');
     }
   }
