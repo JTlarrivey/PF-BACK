@@ -10,8 +10,8 @@ export class ReviewsService {
   async createReview(data: CreateReviewDto): Promise<Review> {
     try {
       // Validar si el usuario o libro existen
-      const user = await this.prisma.user.findUnique({ where: { user_id: data.user_Id } });
-      const book = await this.prisma.book.findUnique({ where: { book_id: data.book_Id } });
+      const user = await this.prisma.user.findUnique({ where: { user_id: data.user_id } });
+      const book = await this.prisma.book.findUnique({ where: { book_id: data.book_id } });
 
       if (!user) {
         throw new BadRequestException('El usuario especificado no existe.');
@@ -25,8 +25,8 @@ export class ReviewsService {
           content: data.content,
           rating: data.rating,
           review_date: new Date(),
-          user: { connect: { user_id: data.user_Id } },
-          book: { connect: { book_id: data.book_Id } },
+          user: { connect: { user_id: data.user_id } },
+          book: { connect: { book_id: data.book_id } },
         },
       });
     } catch (error) {
@@ -53,17 +53,17 @@ export class ReviewsService {
   }
   
   // Método para listar todas las reviews de un libro específico
-  async getReviewsByBook(bookId: number) {
+  async getReviewsByBook(book_id: number) {
     try {
       const reviews = await this.prisma.review.findMany({
-        where: { book_id: bookId },
+        where: { book_id: book_id },
         include: {
           user: true,
         },
       });
 
       if (!reviews.length) {
-        throw new NotFoundException(`No se encontraron reviews para el libro con ID ${bookId}.`);
+        throw new NotFoundException(`No se encontraron reviews para el libro con ID ${book_id}.`);
       }
 
       return reviews;
