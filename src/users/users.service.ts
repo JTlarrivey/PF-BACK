@@ -189,25 +189,44 @@ export class UsersService {
     }
     
 
-    async updateUserRole(user_id: number, isAdmin: boolean): Promise<User> {
-        const user = await this.prisma.user.findUnique({
-            where: { user_id },
-        });
-
-        // Validación de estado antes de actualizar el rol
-        if (!user || user.isDeleted || user.isBanned) {
-            throw new ForbiddenException('No puedes modificar los permisos de este usuario.');
+     // Encuentra un usuario por ID
+    async findUserById(user_id: number): Promise<User | null> {
+        try {
+            return await this.prisma.user.findUnique({
+                where: { user_id: Number(user_id) },
+            });
+        } catch (error) {
+            throw new NotFoundException('Usuario no encontrado');
         }
-
-        return this.prisma.user.update({
-            where: { user_id },
-            data: { isAdmin },
-        });
     }
 
-    async getUserHistory(userId: number): Promise<any> {
+    // Actualiza el rol de administrador del usuario
+    async updateUserRole(user_id: number, isAdmin: boolean): Promise<User> {
+        try {
+            return await this.prisma.user.update({
+                where: { user_id: Number(user_id) },
+                data: { isAdmin },
+            });
+        } catch (error) {
+            throw new BadRequestException('No se pudo actualizar el rol del usuario');
+        }
+    }
+
+    async updateUserBanStatus(user_id: number, isBanned: boolean): Promise<User> {
+        try {
+            return await this.prisma.user.update({
+                where: { user_id: Number(user_id) },
+                data: { isBanned },
+            });
+        } catch (error) {
+            throw new BadRequestException('No se pudo actualizar el estado de baneo del usuario');
+        }
+    }
+
+
+    async getUserHistory(user_id: number): Promise<any> {
         const user = await this.prisma.user.findUnique({
-            where: { user_id: userId },
+            where: { user_id: Number(user_id)},
             include: {
                 reviews: {
                     where: { isDeleted: false },
