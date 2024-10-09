@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException, InternalServerErrorException, ForbiddenException  } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { User } from '@prisma/client';
+import { BookListBook, User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { updateUserDto } from './updateUsers.dto';
 
@@ -226,6 +226,7 @@ export class UsersService {
             throw new NotFoundException('Usuario no encontrado o eliminado.');
        }
     }
+
 async addBookToUserList(userId: number, bookId: number) {
     // Verifica si el usuario tiene listas de libros
     const bookLists = await this.prisma.bookList.findMany({
