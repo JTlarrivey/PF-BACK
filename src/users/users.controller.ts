@@ -207,4 +207,14 @@ async updateUser(@Param('id') id: string, @Body() data: updateUserDto, @Req() re
   async addBookToUserList(@Param('bookId') bookId: number, @Body('userId') userId: number) {
     return this.usersService.addBookToUserList(userId, bookId);
   }
+
+  @Post('add-follower')
+  async addFollower(@Body() body: { userId: number; followedId: number }) {
+    // Asegúrate de que userId y followedId estén definidos
+    if (!body.userId || !body.followedId) {
+      throw new BadRequestException('userId y followedId son requeridos.');
+    }
+    return this.usersService.addFollower(body.userId, body.followedId);
+  }
 }
+

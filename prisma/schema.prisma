@@ -10,7 +10,6 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
 model User {
   user_id           Int        @id @default(autoincrement())
   name              String
@@ -29,12 +28,18 @@ model User {
   photoUrl          String?
   isConfirmed       Boolean    @default(false)
   reports           Report[]
-  friends           User[]     @relation("UserFriends")
-  friendOf          User[]     @relation("UserFriends")
+  friends           User[]     @relation("UserFriends") // Amigos
+  friendOf          User[]     @relation("UserFriends") // Amigos inverso
   donations         Donation[] // Relación con Donaciones
   isDeleted         Boolean    @default(false)
   isBanned          Boolean    @default(false)
-  }  
+
+  // Relación para los seguidores que también son amigos
+  followersAsFriends User[] @relation("FriendsAsFollowers") // Nuevo campo
+  friendsAsFollowers User[] @relation("FriendsAsFollowers") // Campo inverso
+}
+
+
 
 
 model Book {

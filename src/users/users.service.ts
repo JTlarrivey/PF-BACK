@@ -90,6 +90,7 @@ export class UsersService {
         },
         },
         friends: true,
+        followers: true,
             },
             skip,
             take: limit,
@@ -291,5 +292,87 @@ export class UsersService {
             throw new NotFoundException('Usuario no encontrado o eliminado.');
        }
     }
+
+async addBookToUserList(userId: number, bookId: number) {
+    // Verifica si el usuario tiene listas de libros
+    const bookLists = await this.prisma.bookList.findMany({
+      where: { user_id: userId },
+    });
+
+    if (bookLists.length === 0) {
+      throw new NotFoundException('No book lists found for this user.');
+    }
+
+    // Elige la primera lista (puedes agregar lógica para seleccionar una lista específica)
+    const bookList = bookLists[0];
+
+    // Verifica si el libro ya está en la lista
+    const existingBook = await this.prisma.bookListBook.findFirst({
+      where: {
+        list_id: bookList.list_id,
+        book_id: bookId,
+      },
+    });
+
+    if (existingBook) {
+      throw new Error('Book already exists in the list.');
+    }
+
+    // Agrega el libro a la lista
+    return this.prisma.bookListBook.create({
+      data: {
+        list_id: bookList.list_id,
+        book_id: bookId,
+      },
+    });
+  }
+  async addFollower(userId: number, followedId: number) {
+    // Verifica que ambos usuarios existan
+    const user = await this.prisma.user.findUnique({
+      where: { user_id: userId },
+    });
+    const followed = await this.prisma.user.findUnique({
+      where: { user_id: followedId },
+    });
+  
+    if (!user || !followed) {
+      throw new NotFoundException('El usuario o el seguido no existen.');
+    }
+  
+    // Verifica si ya son amigos
+    const existingFollower = await this.prisma.follower.findFirst({
+      where: {
+        follower_user_id: userId,
+        followed_user_id: followedId,
+      },
+    });
+  
+    if (existingFollower) {
+      return { message: 'Ya los sigues.' }; // Mensaje para el conflicto
+    }
+  
+    // Agrega la relación de seguimiento
+    await this.prisma.follower.create({
+      data: {
+        follower_user_id: userId,
+        followed_user_id: followedId,
+      },
+    });
+  
+    // Agrega a la lista de amigos
+    await this.prisma.user.update({
+      where: { user_id: userId },
+      data: {
+        friends: {
+          connect: { user_id: followedId }, // Agrega a "friends"
+        },
+        followersAsFriends: {
+          connect: { user_id: followedId }, // Agrega también a "followersAsFriends"
+        },
+      },
+    });
+  
+    return { message: 'Seguidor agregado y agregado como amigo.' };
+  }
 
 }
