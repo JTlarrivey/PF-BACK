@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException, InternalServerErrorException, ForbiddenException  } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, InternalServerErrorException, ForbiddenException, ConflictException  } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { BookListBook, User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
@@ -30,6 +30,7 @@ export class UsersService {
         },
         },
         friends: true,
+        followers: true,
             },
             skip,
             take: limit,
@@ -259,5 +260,53 @@ async addBookToUserList(userId: number, bookId: number) {
         book_id: bookId,
       },
     });
+  }
+  async addFollower(userId: number, followedId: number) {
+    // Verifica que ambos usuarios existan
+    const user = await this.prisma.user.findUnique({
+      where: { user_id: userId },
+    });
+    const followed = await this.prisma.user.findUnique({
+      where: { user_id: followedId },
+    });
+  
+    if (!user || !followed) {
+      throw new NotFoundException('El usuario o el seguido no existen.');
+    }
+  
+    // Verifica si ya son amigos
+    const existingFollower = await this.prisma.follower.findFirst({
+      where: {
+        follower_user_id: userId,
+        followed_user_id: followedId,
+      },
+    });
+  
+    if (existingFollower) {
+      return { message: 'Ya los sigues.' }; // Mensaje para el conflicto
+    }
+  
+    // Agrega la relación de seguimiento
+    await this.prisma.follower.create({
+      data: {
+        follower_user_id: userId,
+        followed_user_id: followedId,
+      },
+    });
+  
+    // Agrega a la lista de amigos
+    await this.prisma.user.update({
+      where: { user_id: userId },
+      data: {
+        friends: {
+          connect: { user_id: followedId }, // Agrega a "friends"
+        },
+        followersAsFriends: {
+          connect: { user_id: followedId }, // Agrega también a "followersAsFriends"
+        },
+      },
+    });
+  
+    return { message: 'Seguidor agregado y agregado como amigo.' };
   }
 }
