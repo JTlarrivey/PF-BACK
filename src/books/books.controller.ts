@@ -11,6 +11,7 @@ import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { UserStatusGuard } from 'src/auth/guard/status.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileUploadService } from 'src/file-upload/file-upload.service';
+import { UpdateBookDto } from './updatebook.dto';
 
 
 @ApiTags('Books')
@@ -82,14 +83,12 @@ async getAllBooks(
     }
   }
   
-  @ApiBearerAuth()
   @Put(':id')
   @UseGuards(AuthGuard, UserStatusGuard)
-  async updateBook(@Param('id') id: string, @Body() data: Book) {
+  async updateBook(@Param('id') id: string, @Body() data: UpdateBookDto) {
     try {
       return await this.booksService.updateBook(Number(id), data);
     } catch (error) {
-      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException('Error al actualizar el libro');
     }
   }
