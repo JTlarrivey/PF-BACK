@@ -126,6 +126,28 @@ export class UsersService {
         return userWithoutSensitiveInfo;
     }
 
+    async findUserById(user_id: number): Promise<User | null> {
+        try {
+            return await this.prisma.user.findUnique({
+                where: { user_id },
+            });
+        } catch (error) {
+            throw new NotFoundException('Usuario no encontrado');
+        }
+    }
+
+    async updateUserBanStatus(user_id: number, isBanned: boolean): Promise<User> {
+        try {
+            return await this.prisma.user.update({
+                where: { user_id },
+                data: { isBanned },
+            });
+        } catch (error) {
+            throw new BadRequestException('No se pudo actualizar el estado de baneo del usuario');
+        }
+    }
+
+
     async getUserActivity(userId: number): Promise<any> {
         const user = await this.prisma.user.findUnique({
             where: { user_id: userId },

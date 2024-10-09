@@ -121,38 +121,7 @@ async updateUser(@Param('id') id: string, @Body() data: updateUserDto, @Req() re
         }
     }
 
-    @ApiBearerAuth()
-    @Put(':id/make-admin')
-    @Roles(Role.Admin)
-    @UseGuards(AuthGuard, RolesGuard)
-    async makeUserAdmin(@Param('id') id: string, @Req() req: Request) {
-        const adminUser = req.user as User;
-        if (!adminUser?.isAdmin) throw new ForbiddenException('No tienes permiso para realizar esta acción');
-
-        try {
-            const updatedUser = await this.usersService.updateUserRole(Number(id), true);
-            return { message: 'El usuario ahora es administrador', user: updatedUser };
-        } catch (error) {
-            throw new BadRequestException('Error al promover al usuario a administrador');
-        }
-    }
-
-    @ApiBearerAuth()
-    @Put(':id/remove-admin')
-    @Roles(Role.Admin)
-    @UseGuards(AuthGuard, RolesGuard)
-    async removeUserAdmin(@Param('id') id: string, @Req() req: Request) {
-        const adminUser = req.user as User;
-        if (!adminUser?.isAdmin) throw new ForbiddenException('No tienes permiso para realizar esta acción');
-
-        try {
-            const updatedUser = await this.usersService.updateUserRole(Number(id), false);
-            return { message: 'El usuario ya no es administrador', user: updatedUser };
-        } catch (error) {
-            throw new BadRequestException('Error al remover el rol de administrador del usuario');
-        }
-    }
-
+    
     @ApiBearerAuth()
     @Get(':id/history')
     @Roles(Role.Admin)
@@ -216,5 +185,54 @@ async updateUser(@Param('id') id: string, @Body() data: updateUserDto, @Req() re
     }
     return this.usersService.addFollower(body.userId, body.followedId);
   }
+
+
+@ApiBearerAuth()
+@Put(':id/toggle-ban')
+@Roles(Role.Admin)
+@UseGuards(AuthGuard, RolesGuard)
+async toggleUserBan(@Param('id') id: string, @Req() req: Request) {
+    const adminUser = req.user as User;
+    if (!adminUser?.isAdmin) {
+        throw new ForbiddenException('No tienes permiso para realizar esta acción');
+    }
+
+    try {
+        const user = await this.usersService.findUserById(Number(id));
+        const newIsBannedStatus = !user.isBanned;
+        const updatedUser = await this.usersService.updateUserBanStatus(Number(id), newIsBannedStatus);
+
+        return {
+            message: newIsBannedStatus ? 'El usuario ha sido baneado' : 'El usuario ya no está baneado',
+            user: updatedUser
+        };
+    } catch (error) {
+        throw new BadRequestException('Error al cambiar el estado de baneo del usuario');
+    }
 }
 
+@ApiBearerAuth()
+    @Put(':id/toggle-admin')
+    @Roles(Role.Admin)
+    @UseGuards(AuthGuard, RolesGuard)
+    async toggleUserAdmin(@Param('id') id: string, @Req() req: Request) {
+        const adminUser = req.user as User;
+        if (!adminUser?.isAdmin) {
+            throw new ForbiddenException('No tienes permiso para realizar esta acción');
+        }
+    
+        try {
+            const user = await this.usersService.findUserById(Number(id));
+            const newIsAdminStatus = !user.isAdmin;
+            const updatedUser = await this.usersService.updateUserRole(Number(id), newIsAdminStatus);
+    
+            return {
+                message: newIsAdminStatus ? 'El usuario ahora es administrador' : 'El usuario ya no es administrador',
+                user: updatedUser
+            };
+        } catch (error) {
+            throw new BadRequestException('Error al cambiar el rol de administrador del usuario');
+        }
+    } 
+
+}
