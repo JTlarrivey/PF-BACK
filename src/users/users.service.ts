@@ -293,39 +293,7 @@ export class UsersService {
        }
     }
 
-async addBookToUserList(userId: number, bookId: number) {
-    // Verifica si el usuario tiene listas de libros
-    const bookLists = await this.prisma.bookList.findMany({
-      where: { user_id: userId },
-    });
 
-    if (bookLists.length === 0) {
-      throw new NotFoundException('No book lists found for this user.');
-    }
-
-    // Elige la primera lista (puedes agregar lógica para seleccionar una lista específica)
-    const bookList = bookLists[0];
-
-    // Verifica si el libro ya está en la lista
-    const existingBook = await this.prisma.bookListBook.findFirst({
-      where: {
-        list_id: bookList.list_id,
-        book_id: bookId,
-      },
-    });
-
-    if (existingBook) {
-      throw new Error('Book already exists in the list.');
-    }
-
-    // Agrega el libro a la lista
-    return this.prisma.bookListBook.create({
-      data: {
-        list_id: bookList.list_id,
-        book_id: bookId,
-      },
-    });
-  }
   async addFollower(userId: number, followedId: number) {
     // Verifica que ambos usuarios existan
     const user = await this.prisma.user.findUnique({
