@@ -198,4 +198,11 @@ export class UsersController {
         throw new InternalServerErrorException('Error al subir la foto del usuario');
        }
     }
+
+
+  @Post('book-list/:bookId')
+  async addBookToUserList(@Param('bookId') bookId: number, @Body('userId') userId: number) {
+    return this.usersService.addBookToUserList(userId, bookId);
+  }
 }
+
