@@ -1,8 +1,7 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Book } from '@prisma/client';
 import { CreateBookDto } from './createbook.dto';
-import { UpdateBookDto } from './updatebook.dto';
 
 @Injectable()
 export class BooksService {
@@ -47,37 +46,21 @@ export class BooksService {
       throw new InternalServerErrorException('Error al recuperar el libro');
     }
   }
-  async updateBook(book_id: number, data: UpdateBookDto): Promise<Book> {
+
+  async updateBook(book_id: number, data: Partial<Omit<Book, 'book_id'>>): Promise<Book> {
     try {
-      // Obtener el libro actual
-      const currentBook = await this.prisma.book.findUnique({
-        where: { book_id },
-      });
-      
-      if (!currentBook) throw new NotFoundException('Libro no encontrado');
-  
-      // Verificar si algún campo ha sido modificado
-      const isModified = Object.keys(data).some(
-        key => data[key] !== currentBook[key]
-      );
-  
-      if (!isModified) {
-        throw new BadRequestException('Debe modificar al menos un campo');
-      }
-  
-      // Proceder con la actualización si hay modificaciones
-      const updatedBook = await this.prisma.book.update({
+      const book = await this.prisma.book.update({
         where: { book_id },
         data,
       });
-  
-      return updatedBook;
+      if (!book) throw new NotFoundException('Libro no encontrado');
+      return book;
     } catch (error) {
-      if (error instanceof NotFoundException || error instanceof BadRequestException) throw error;
+      if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException('Error al actualizar el libro');
     }
   }
-  
+
   async deleteBook(book_id: number): Promise<Omit<Book, 'isDeleted'>> {
     try {
       const deletedBook = await this.prisma.book.update({
