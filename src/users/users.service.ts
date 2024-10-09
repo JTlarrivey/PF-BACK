@@ -226,21 +226,38 @@ export class UsersService {
             throw new NotFoundException('Usuario no encontrado o eliminado.');
        }
     }
-async addBookToList(userId: number, listId: number, bookId: number): Promise<BookListBook> {
-    // Verificar que el usuario y la lista existen
-    const user = await this.prisma.user.findUnique({ where: { user_id: userId } });
-    const bookList = await this.prisma.bookList.findUnique({ where: { list_id: listId } });
 
-    if (!user || !bookList) {
-        throw new NotFoundException('Usuario o lista no encontrada.');
+async addBookToUserList(userId: number, bookId: number) {
+    // Verifica si el usuario tiene listas de libros
+    const bookLists = await this.prisma.bookList.findMany({
+      where: { user_id: userId },
+    });
+
+    if (bookLists.length === 0) {
+      throw new NotFoundException('No book lists found for this user.');
     }
 
-    // Crear la relación en la tabla BookListBook
-    return this.prisma.bookListBook.create({
-        data: {
-            bookList: { connect: { list_id: listId } },
-            book: { connect: { book_id: bookId } },
-        },
+    // Elige la primera lista (puedes agregar lógica para seleccionar una lista específica)
+    const bookList = bookLists[0];
+
+    // Verifica si el libro ya está en la lista
+    const existingBook = await this.prisma.bookListBook.findFirst({
+      where: {
+        list_id: bookList.list_id,
+        book_id: bookId,
+      },
     });
-}
+
+    if (existingBook) {
+      throw new Error('Book already exists in the list.');
+    }
+
+    // Agrega el libro a la lista
+    return this.prisma.bookListBook.create({
+      data: {
+        list_id: bookList.list_id,
+        book_id: bookId,
+      },
+    });
+  }
 }
