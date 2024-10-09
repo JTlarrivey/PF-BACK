@@ -2,10 +2,70 @@ import { Injectable, NotFoundException, BadRequestException, InternalServerError
 import { PrismaService } from 'src/prisma/prisma.service';
 import { BookListBook, User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+
 import { updateUserDto } from './updateUsers.dto';
 
 @Injectable()
 export class UsersService {
+    async addBookToUserList(userId: number, bookId: number) {
+        // Verifica que el usuario exista
+        const userExists = await this.prisma.user.findUnique({
+            where: { user_id: Number(userId) },  // Aseguramos que userId sea número
+        });
+    
+        if (!userExists) {
+            throw new NotFoundException('El usuario no existe.');
+        }
+    
+        // Verifica si el usuario tiene listas de libros
+        const bookLists = await this.prisma.bookList.findMany({
+            where: { user_id: Number(userId), isDeleted: false },
+        });
+    
+        // Si no hay listas, crea una nueva lista
+        if (bookLists.length === 0) {
+            const newList = await this.prisma.bookList.create({
+                data: {
+                    user_id: Number(userId),
+                    list_name: 'Mi primera lista',
+                    description: 'Descripción inicial',
+                    creation_date: new Date(),
+                },
+            });
+    
+            // Agrega el libro a la nueva lista
+            return this.prisma.bookListBook.create({
+                data: {
+                    list_id: newList.list_id,
+                    book_id: Number(bookId),  // Aseguramos que bookId sea número
+                },
+            });
+        }
+    
+        // Elige la primera lista
+        const bookList = bookLists[0];
+    
+        // Verifica si el libro ya está en la lista
+        const existingBook = await this.prisma.bookListBook.findFirst({
+            where: {
+                list_id: bookList.list_id,
+                book_id: Number(bookId),  // Aseguramos que bookId sea número
+            },
+        });
+    
+        if (existingBook) {
+            throw new ConflictException('El libro ya existe en la lista.');
+        }
+    
+        // Agrega el libro a la lista
+        return this.prisma.bookListBook.create({
+            data: {
+                list_id: bookList.list_id,
+                book_id: Number(bookId),  // Aseguramos que bookId sea número
+            },
+        });
+    }
+    
     constructor(private readonly prisma: PrismaService) {}
 
     async getUsers(page: number, limit: number): Promise<Omit<User, 'password' | 'isAdmin'>[]> {
@@ -127,26 +187,31 @@ export class UsersService {
         return this.prisma.user.create({ data });
     }
 
-    async updateUser(id: number, data: updateUserDto): Promise<Omit<User, 'password' | 'isAdmin'>> {
+    async updateUser(id: number, data: updateUserDto, currentUser: User): Promise<Omit<User, 'password' | 'isAdmin'>> {
         const user = await this.prisma.user.findUnique({
             where: { user_id: id },
         });
-
+    
         // Validación de estado del usuario antes de permitir la actualización
-        if (!user || user.isDeleted || user.isBanned) {
-            throw new ForbiddenException('No puedes modificar tu perfil porque tu cuenta está deshabilitada o baneada.');
+        if (!user) {
+            throw new NotFoundException('Usuario no encontrado.');
         }
-
+    
+        // Permitir a un admin modificar usuarios baneados o eliminados
+        if ((user.isDeleted || user.isBanned) && !currentUser.isAdmin) {
+            throw new ForbiddenException('No puedes modificar este perfil porque la cuenta está deshabilitada o baneada.');
+        }
+    
         if (data.password && typeof data.password === 'string') {
             data.password = await bcrypt.hash(data.password, 10);
         }
-
+    
         try {
             const updatedUser = await this.prisma.user.update({
                 where: { user_id: id },
                 data,
             });
-
+    
             const { password, isAdmin, ...userWithoutSensitiveInfo } = updatedUser;
             return userWithoutSensitiveInfo;
         } catch (error) {
@@ -159,7 +224,7 @@ export class UsersService {
             }
         }
     }
-
+    
 
     async deleteUser(id: number, banUser: boolean = false): Promise<Omit<User, 'password' | 'isAdmin'>> {
         // Verificar si el usuario ya está eliminado o no existe
@@ -309,4 +374,5 @@ async addBookToUserList(userId: number, bookId: number) {
   
     return { message: 'Seguidor agregado y agregado como amigo.' };
   }
+
 }
