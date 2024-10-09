@@ -1,11 +1,71 @@
-import { Injectable, NotFoundException, BadRequestException, InternalServerErrorException, ForbiddenException  } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, InternalServerErrorException, ForbiddenException, ConflictException  } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { BookListBook, User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+
 import { updateUserDto } from './updateUsers.dto';
 
 @Injectable()
 export class UsersService {
+    async addBookToUserList(userId: number, bookId: number) {
+        // Verifica que el usuario exista
+        const userExists = await this.prisma.user.findUnique({
+            where: { user_id: Number(userId) },  // Aseguramos que userId sea número
+        });
+    
+        if (!userExists) {
+            throw new NotFoundException('El usuario no existe.');
+        }
+    
+        // Verifica si el usuario tiene listas de libros
+        const bookLists = await this.prisma.bookList.findMany({
+            where: { user_id: Number(userId), isDeleted: false },
+        });
+    
+        // Si no hay listas, crea una nueva lista
+        if (bookLists.length === 0) {
+            const newList = await this.prisma.bookList.create({
+                data: {
+                    user_id: Number(userId),
+                    list_name: 'Mi primera lista',
+                    description: 'Descripción inicial',
+                    creation_date: new Date(),
+                },
+            });
+    
+            // Agrega el libro a la nueva lista
+            return this.prisma.bookListBook.create({
+                data: {
+                    list_id: newList.list_id,
+                    book_id: Number(bookId),  // Aseguramos que bookId sea número
+                },
+            });
+        }
+    
+        // Elige la primera lista
+        const bookList = bookLists[0];
+    
+        // Verifica si el libro ya está en la lista
+        const existingBook = await this.prisma.bookListBook.findFirst({
+            where: {
+                list_id: bookList.list_id,
+                book_id: Number(bookId),  // Aseguramos que bookId sea número
+            },
+        });
+    
+        if (existingBook) {
+            throw new ConflictException('El libro ya existe en la lista.');
+        }
+    
+        // Agrega el libro a la lista
+        return this.prisma.bookListBook.create({
+            data: {
+                list_id: bookList.list_id,
+                book_id: Number(bookId),  // Aseguramos que bookId sea número
+            },
+        });
+    }
+    
     constructor(private readonly prisma: PrismaService) {}
 
     async getUsers(page: number, limit: number): Promise<Omit<User, 'password' | 'isAdmin'>[]> {
@@ -227,37 +287,4 @@ export class UsersService {
        }
     }
 
-async addBookToUserList(userId: number, bookId: number) {
-    // Verifica si el usuario tiene listas de libros
-    const bookLists = await this.prisma.bookList.findMany({
-      where: { user_id: userId },
-    });
-
-    if (bookLists.length === 0) {
-      throw new NotFoundException('No book lists found for this user.');
-    }
-
-    // Elige la primera lista (puedes agregar lógica para seleccionar una lista específica)
-    const bookList = bookLists[0];
-
-    // Verifica si el libro ya está en la lista
-    const existingBook = await this.prisma.bookListBook.findFirst({
-      where: {
-        list_id: bookList.list_id,
-        book_id: bookId,
-      },
-    });
-
-    if (existingBook) {
-      throw new Error('Book already exists in the list.');
-    }
-
-    // Agrega el libro a la lista
-    return this.prisma.bookListBook.create({
-      data: {
-        list_id: bookList.list_id,
-        book_id: bookId,
-      },
-    });
-  }
 }
