@@ -364,5 +364,34 @@ export class UsersService {
   
     return { message: 'Seguidor agregado y agregado como amigo.' };
   }
+  async getUserBooks(userId: number): Promise<any[]> {
+    // Verifica si el usuario existe
+    const user = await this.prisma.user.findUnique({
+        where: { user_id: userId },
+        include: {
+            bookLists: {
+                include: {
+                    books: {
+                        include: {
+                            book: true,  // Incluye todos los campos del libro
+                        },
+                    },
+                },
+            },
+        },
+    });
+
+    if (!user) {
+        throw new NotFoundException('Usuario no encontrado.');
+    }
+
+    // Mapea y devuelve solo el array de libros
+    const booksArray = user.bookLists.flatMap(list =>
+        list.books.map(bookListBook => bookListBook.book)
+    );
+
+    return booksArray;  // Devuelve el array de libros
+}
+
 
 }

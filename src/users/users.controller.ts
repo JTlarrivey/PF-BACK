@@ -234,5 +234,19 @@ async toggleUserBan(@Param('id') id: string, @Req() req: Request) {
             throw new BadRequestException('Error al cambiar el rol de administrador del usuario');
         }
     } 
+    @ApiBearerAuth()
+@Get(':id/books')
+@UseGuards(AuthGuard)
+async getUserBooks(@Param('id') id: string) {
+    try {
+        const userId = Number(id);
+        const books = await this.usersService.getUserBooks(userId);
+        if (!books) throw new NotFoundException('No se encontraron libros para este usuario');
+        return books;
+    } catch (error) {
+        throw new BadRequestException('Error al obtener los libros del usuario');
+    }
+}
+
 
 }
