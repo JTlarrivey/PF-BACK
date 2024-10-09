@@ -41,7 +41,7 @@ export class ReviewsController {
 
   @Get('/books/:book_id')
   @UseGuards(AuthGuard, UserStatusGuard)
-  async getReviewsByBook(@Param('book_Id', ParseIntPipe) book_id: number) {
+  async getReviewsByBook(@Param('book_Id') book_id: number) {
     try {
       const reviews = await this.reviewsService.getReviewsByBook(book_id);
       if (reviews.length === 0) {

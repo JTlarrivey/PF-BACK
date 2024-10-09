@@ -92,20 +92,22 @@ export class UsersController {
     
 
     @ApiBearerAuth()
-    @Put(':id')
-    @UseGuards(AuthGuard)
-    async updateUser(@Param('id') id: string, @Body() data: updateUserDto) {
-        try {
-            return await this.usersService.updateUser(Number(id), data);
-        } catch (error) {
-            if (error instanceof NotFoundException) {
-                throw new NotFoundException('El usuario no existe');
-            } else if (error.message.includes('El email ya está en uso')) {
-                throw new ConflictException('El email ya está en uso');
-            }
-            throw new BadRequestException('Error al actualizar el usuario');
+@Put(':id')
+@UseGuards(AuthGuard)
+async updateUser(@Param('id') id: string, @Body() data: updateUserDto, @Req() req) {
+    try {
+        const currentUser = req.user; // Obtener el usuario autenticado
+        return await this.usersService.updateUser(Number(id), data, currentUser); // Pasar el usuario actual al servicio
+    } catch (error) {
+        if (error instanceof NotFoundException) {
+            throw new NotFoundException('El usuario no existe');
+        } else if (error.message.includes('El email ya está en uso')) {
+            throw new ConflictException('El email ya está en uso');
         }
+
+        throw new BadRequestException('Error al actualizar el usuario');
     }
+}
 
     @ApiBearerAuth()
     @Delete(':id')

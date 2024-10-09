@@ -186,26 +186,31 @@ export class UsersService {
         return this.prisma.user.create({ data });
     }
 
-    async updateUser(id: number, data: updateUserDto): Promise<Omit<User, 'password' | 'isAdmin'>> {
+    async updateUser(id: number, data: updateUserDto, currentUser: User): Promise<Omit<User, 'password' | 'isAdmin'>> {
         const user = await this.prisma.user.findUnique({
             where: { user_id: id },
         });
-
+    
         // Validación de estado del usuario antes de permitir la actualización
-        if (!user || user.isDeleted || user.isBanned) {
-            throw new ForbiddenException('No puedes modificar tu perfil porque tu cuenta está deshabilitada o baneada.');
+        if (!user) {
+            throw new NotFoundException('Usuario no encontrado.');
         }
-
+    
+        // Permitir a un admin modificar usuarios baneados o eliminados
+        if ((user.isDeleted || user.isBanned) && !currentUser.isAdmin) {
+            throw new ForbiddenException('No puedes modificar este perfil porque la cuenta está deshabilitada o baneada.');
+        }
+    
         if (data.password && typeof data.password === 'string') {
             data.password = await bcrypt.hash(data.password, 10);
         }
-
+    
         try {
             const updatedUser = await this.prisma.user.update({
                 where: { user_id: id },
                 data,
             });
-
+    
             const { password, isAdmin, ...userWithoutSensitiveInfo } = updatedUser;
             return userWithoutSensitiveInfo;
         } catch (error) {
@@ -218,7 +223,7 @@ export class UsersService {
             }
         }
     }
-
+    
 
     async deleteUser(id: number, banUser: boolean = false): Promise<Omit<User, 'password' | 'isAdmin'>> {
         // Verificar si el usuario ya está eliminado o no existe
