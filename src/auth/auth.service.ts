@@ -127,43 +127,48 @@ export class AuthService {
   // Modificado para iniciar sesión automáticamente tras confirmar el correo
   async confirmEmail(token: string) {
     try {
-      const decoded = this.jwtService.verify(token);
+      const decoded = this.jwtService.verify(token, { secret: process.env.JWT_SECRET });
       const email = decoded.email;
-
+  
       const user = await this.prisma.user.findUnique({ where: { email } });
-
+  
       if (!user) {
         throw new BadRequestException('Token inválido o usuario no encontrado');
       }
-
+  
       if (user.isConfirmed) {
         throw new BadRequestException('Este correo ya ha sido confirmado');
       }
-
+  
+      if (user.isDeleted || user.isBanned) {
+        throw new BadRequestException('Usuario deshabilitado.');
+      }
+  
       // Confirmar el correo del usuario
       await this.prisma.user.update({
         where: { email },
         data: { isConfirmed: true },
       });
-
+  
       // Crear el payload para el token
       const payload = {
-        id: user.user_id,
+        id: user.user_id,  // Aquí lo cambiamos a 'id' para que coincida con el JwtStrategy
         email: user.email,
         isAdmin: user.isAdmin,
         name: user.name,
         photoUrl: user.photoUrl,
       };
-
+  
       // Generar el token JWT
       const jwtToken = this.jwtService.sign(payload);
-
+  
       // Retornar el mensaje de éxito y el token
       return {
         message: 'Correo confirmado con éxito',
         token: jwtToken, // Retornar el token para que inicie sesión automáticamente
       };
     } catch (error) {
+      console.error('Error confirmando el correo:', error); // Log para depuración
       throw new BadRequestException('Token inválido o expirado');
     }
   }
