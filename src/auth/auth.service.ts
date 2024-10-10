@@ -224,7 +224,7 @@ export class AuthService {
     }
   
     const resetToken = this.jwtService.sign({ email: user.email }, { expiresIn: '1h' });
-    const resetUrl = `http://localhost:81/resetpassword?token=${resetToken}`;
+    const resetUrl = `http://${process.env.APP_URL}/resetpassword?token=${resetToken}`;
   
     try {
       // Llamada al método `sendMail` con los 4 argumentos requeridos
