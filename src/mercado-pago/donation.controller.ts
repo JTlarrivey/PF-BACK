@@ -21,14 +21,14 @@ export class DonationController {
 @Post('create-order')
 @UseGuards(AuthGuard, UserStatusGuard)
     async createOrder(
-      @Body() createDonationDto: { userId: number; amount: number; description: string; payerEmail: string },
+      @Body() createDonationDto: { user_id: number; amount: number; description: string; payerEmail: string },
       @Res() res: Response
     ) {
       try {
-        const { userId, amount, description, payerEmail } = createDonationDto;
+        const { user_id, amount, description, payerEmail } = createDonationDto;
 
        // Validar que el userId esté presente
-        if (!userId) {
+        if (!user_id) {
           return res.status(400).json({ message: 'User ID is missing' });
         }
 
@@ -37,7 +37,7 @@ export class DonationController {
           amount,
           description,
           payerEmail,
-          userId // Aquí pasamos el userId
+          user_id // Aquí pasamos el userId
         );
 
        return res.json(order); // Retorna el resultado de la donación
@@ -107,9 +107,9 @@ async receiveWebhook(@Body() body: any, @Res() res: Response) {
       return res.status(401).json({ message: 'Unauthorized: User not found' });
     }
   
-    const userId = req.user.user_id; // Cambia 'user_id' a 'id'
+    const user_id = req.user.user_id; // Cambia 'user_id' a 'id'
     try {
-      const donations = await this.donationService.getDonationById(userId.toString());
+      const donations = await this.donationService.getDonationById(user_id.toString());
       res.json(donations);
     } catch (error) {
       res.status(500).json({ message: 'Error fetching donations', error: error.message });
