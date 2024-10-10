@@ -21,8 +21,8 @@ export class UsersController {
         private readonly fileUploadService: FileUploadService
     ) {}
     
-    @ApiBearerAuth()
-    @Get()
+@ApiBearerAuth()
+@Get()
     async getUsers(
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '10', 
@@ -39,9 +39,9 @@ export class UsersController {
     }
 }
 
-    @ApiBearerAuth()
-    @Get(':id')
-    @UseGuards(AuthGuard)
+@ApiBearerAuth()
+@Get(':id')
+@UseGuards(AuthGuard)
     async getUserById(@Param('id') id: string) {
         try {
             const foundUser = await this.usersService.getUserById(Number(id));
@@ -50,10 +50,10 @@ export class UsersController {
         } catch (error) {
             throw error instanceof NotFoundException ? error : new BadRequestException('Error al obtener el usuario');
         }
-    }
+}
 
-    @ApiBearerAuth()
-    @Get(':id/activity')
+@ApiBearerAuth()
+@Get(':id/activity')
     async getUserActivity(@Param('id') id: string) {
         try {
             const userId = Number(id);
@@ -61,10 +61,10 @@ export class UsersController {
         } catch (error) {
             throw new BadRequestException('Error al obtener la actividad del usuario');
         }
-    }
+}
 
-    @Post('search')
-    @UseGuards(AuthGuard, UserStatusGuard)
+@Post('search')
+@UseGuards(AuthGuard, UserStatusGuard)
     async searchUsers(
     @Query('name') name?: string,
     @Query('email') email?: string,
@@ -78,20 +78,18 @@ export class UsersController {
         } catch (error) {
             throw new InternalServerErrorException('Error al obtener los usuarios'); 
         }
-    }
+}
 
-    @Post()
+@Post()
     async createUser(@Body() data: Omit<User, 'user_id'>) {
         try {
             return await this.usersService.createUser(data);
         } catch (error) {
             throw new BadRequestException('Error al crear el usuario');
         }
-    }
+}
 
-    
-
-    @ApiBearerAuth()
+@ApiBearerAuth()
 @Put(':id')
 @UseGuards(AuthGuard)
 async updateUser(@Param('id') id: string, @Body() data: updateUserDto, @Req() req) {
@@ -109,8 +107,8 @@ async updateUser(@Param('id') id: string, @Body() data: updateUserDto, @Req() re
     }
 }
 
-    @ApiBearerAuth()
-    @Delete(':id')
+@ApiBearerAuth()
+@Delete(':id')
     async deleteUser(@Param('id') id: string) {
         try {
             const user = await this.usersService.deleteUser(Number(id));
@@ -119,13 +117,13 @@ async updateUser(@Param('id') id: string, @Body() data: updateUserDto, @Req() re
         } catch (error) {
             throw error instanceof NotFoundException ? error : new BadRequestException('Error al eliminar el usuario');
         }
-    }
+}
 
     
-    @ApiBearerAuth()
-    @Get(':id/history')
-    @Roles(Role.Admin)
-    @UseGuards(AuthGuard, RolesGuard)
+@ApiBearerAuth()
+@Get(':id/history')
+@Roles(Role.Admin)
+@UseGuards(AuthGuard, RolesGuard)
     async getUserHistory(@Param('id') id: string) {
         try {
             const userId = Number(id);
@@ -133,12 +131,12 @@ async updateUser(@Param('id') id: string, @Body() data: updateUserDto, @Req() re
         } catch (error) {
             throw new BadRequestException('Error al obtener el historial del usuario');
         }
-    }
+}
 
-    @ApiBearerAuth()
-    @Put('profile/:id/upload-photo')
-    @UseGuards(AuthGuard)
-    @UseInterceptors(FileInterceptor('file'))
+@ApiBearerAuth()
+@Put('profile/:id/upload-photo')
+@UseGuards(AuthGuard)
+@UseInterceptors(FileInterceptor('file'))
     async uploadUserPhoto(
         @UploadedFile() file: Express.Multer.File,
         @Param('id') id: string,
@@ -168,23 +166,22 @@ async updateUser(@Param('id') id: string, @Body() data: updateUserDto, @Req() re
         } catch (error) { 
         throw new InternalServerErrorException('Error al subir la foto del usuario');
        }
-    }
+}
 
 
-
-  @Post('book-list/:bookId')
-  async addBookToUserList(@Param('bookId') bookId: number, @Body('userId') userId: number) {
+@Post('book-list/:bookId')
+async addBookToUserList(@Param('bookId') bookId: number, @Body('userId') userId: number) {
     return this.usersService.addBookToUserList(userId, bookId);
-  }
+}
 
-  @Post('add-follower')
-  async addFollower(@Body() body: { userId: number; followedId: number }) {
+@Post('add-follower')
+async addFollower(@Body() body: { userId: number; followedId: number }) {
     // Asegúrate de que userId y followedId estén definidos
     if (!body.userId || !body.followedId) {
-      throw new BadRequestException('userId y followedId son requeridos.');
+    throw new BadRequestException('userId y followedId son requeridos.');
     }
     return this.usersService.addFollower(body.userId, body.followedId);
-  }
+}
 
 
 @ApiBearerAuth()
