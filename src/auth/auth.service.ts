@@ -29,7 +29,7 @@ export class AuthService {
       },
     });
 
-    const confirmationUrl = `${process.env.APP_URL2}/auth?token=${token}`;
+    const confirmationUrl = `${process.env.APP_URL2}/auth/confirm?token=${token}`;
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
