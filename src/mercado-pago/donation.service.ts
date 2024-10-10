@@ -51,9 +51,9 @@ export class DonationsService {
         },
       ],
       back_urls: {
-        success: "http://localhost:81/donations/success",
-        failure: "http://localhost:3000/donations/failure",
-        pending: "http://localhost:3000/donations/pending",
+        success: `http://${process.env.APP_URL}/donations/success`,
+        failure: `http://${process.env.APP_URL}/donations/failure`,
+        pending: `http://${process.env.APP_URL}/donations/pending`,
       },
       notification_url: "https://booknity-api.onrender.com/donations/webhook",
       payer: {
