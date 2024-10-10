@@ -69,7 +69,7 @@ export class AuthController {
       const { accessToken } = await this.authService.googleLogin(req);
 
       // Redirige al frontend con el token en la URL
-      return res.redirect(`https://henry-pf-rho.vercel.app/auth?token=${accessToken}`);
+      return res.redirect(`https://${process.env.APP_URL}/auth?token=${accessToken}`);
     } catch (error) {
       console.error('Error during Google authentication callback:', error);
       return res.status(400).send('Error en la autenticación con Google');
