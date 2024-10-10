@@ -5,24 +5,25 @@ export class CreateDonationDto {
 
   @ApiProperty({
     description: 'Monto a donar',
-  example: 100,
-})
+    example: 100,
+  })
   @IsNumber()
   @IsNotEmpty()
   amount: number;
   
-  /**
-   * Debe ser un email
-   * @example "nXqJ3@example.com"
-   */
+  @ApiProperty({
+    description: 'Email del donante',
+    example: 'juanperez@example.com',
+  })
   @IsEmail()
   @IsNotEmpty()
   email: string;
   
-  /**
-   * Debe ser un string
-   * @example "Texto descriptivo"
-   */
+  @ApiProperty({
+    description: 'Descripción de la donación',
+    example: 'Texto descriptivo de la donación',
+    required: false,  
+  })
   @IsString()
   @IsOptional()
   description?: string;

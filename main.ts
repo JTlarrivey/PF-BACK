@@ -13,8 +13,8 @@ async function bootstrap() {
     });
 
     const options = new DocumentBuilder()
-        .setTitle('Books API')
-        .setDescription('The books API description')
+        .setTitle('BOOKNITY')
+        .setDescription('Es una API diseñada para fomentar la lectura y crear un ambiente social enriquecedor entre los usuarios. Esta plataforma permite a los amantes de los libros interactuar, compartir sus lecturas y opiniones, y descubrir nuevas obras a través de un sistema de recomendaciones y listas de lectura personalizadas.')
         .setVersion('1.0.0')
         .addBearerAuth()
         .build();
