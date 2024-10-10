@@ -25,7 +25,7 @@ export class CreateBookDto {
    * @example "https://example.com/image.jpg"
    */
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty()   
   photoUrl: string;
   
   /**
