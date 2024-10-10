@@ -19,12 +19,14 @@ async function bootstrap() {
         .addBearerAuth()
         .build();
 
-    const document = SwaggerModule.createDocument(app, options);
+    const document = SwaggerModule.createDocument(app, options, {
+        deepScanRoutes: true, // Asegura que Swagger escanee rutas profundamente para DTOs anidados
+    });
+
     SwaggerModule.setup('api', app, document);
     
     const port = 3000;
     await app.listen(port);
-    
 }
 
 bootstrap();
