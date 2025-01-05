@@ -21,15 +21,16 @@ export class BooksController {
     private readonly fileUploadService: FileUploadService
   ) {}
 
-@Get('total')
+  @Get('total')
   async getTotalBooks(): Promise<{ totalBooks: number }> {
-  try {
-    const totalBooks = await this.booksService.totalBooks();
-    return { totalBooks };
-  } catch (error) { 
-    throw new InternalServerErrorException('Error al recuperar el número total de libros');
+    try {
+      const totalBooks = await this.booksService.totalBooks();  // Obtener el total desde el servicio
+      return { totalBooks };
+    } catch (error) {
+      console.error('Error en el endpoint /books/total:', error.message);
+      throw new InternalServerErrorException('Error al recuperar el número total de libros.');
+    }
   }
-}
 
 @Get('list')
 @UseGuards(AuthGuard, UserStatusGuard)
@@ -51,6 +52,17 @@ async getAllBooks(
     throw new InternalServerErrorException('Error al recuperar los libros');
   }
 }
+
+
+@Get('library')
+async getLibraryBooks(
+  @Query('page') page: number = 1,
+  @Query('limit') limit: number = 10,
+  @Query('search') search?: string,
+) {
+  return await this.booksService.getAllBooksCombined(page, limit, search);
+}
+
 
 
   @Get(':id')
