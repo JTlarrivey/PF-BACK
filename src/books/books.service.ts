@@ -1,39 +1,104 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import axios from 'axios';
+import { HttpService } from '@nestjs/axios';
 import { Book } from '@prisma/client';
 import { CreateBookDto } from './createbook.dto';
 import { UpdateBookDto } from './updatebook.dto';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class BooksService {
-  constructor(private prisma: PrismaService) {}
-  
-  async totalBooks(): Promise<number> {
-    return await this.prisma.book.count();
-  } 
-  
+  constructor(private prisma: PrismaService, private readonly httpService: HttpService) {}
 
+
+  // URL base de la API de Gutendex
+  private readonly gutendexApiUrl = 'https://gutendex.com/books';
+
+  // Método para llamar a la API de Gutendex
+  async fetchExternalBooks(searchQuery?: string, page: number = 1, limit: number = 10): Promise<any> {
+    try {
+      const response = await axios.get(this.gutendexApiUrl, {
+        params: {
+          search: searchQuery,
+          page: page,
+        },
+      });
+      return response.data; // Devuelve los datos obtenidos de la API
+    } catch (error) {
+      throw new InternalServerErrorException('Error al obtener libros de la API externa');
+    }
+  }
+
+  // Método para combinar libros locales y externos
+  async getAllBooksCombined(page: number, limit: number, searchQuery?: string): Promise<any> {
+    try {
+      // Libros locales desde Prisma
+      const skip = (page - 1) * limit;
+      const localBooks = await this.prisma.book.findMany({
+        where: { isDeleted: false },
+        skip: skip,
+        take: limit,
+        include: { categories: true },
+      });
+
+      // Libros externos desde Gutendex
+      const externalBooks = await this.fetchExternalBooks(searchQuery, page, limit);
+
+      // Combinar resultados (locales + externos)
+      return {
+        localBooks,
+        externalBooks: externalBooks.results, // Ajustar según el formato de la API
+      };
+    } catch (error) {
+      throw new InternalServerErrorException('Error al obtener los libros combinados');
+    }
+  }
+
+  // Mantengo aquí tus otros métodos para no perderlos.
+  async totalBooks(): Promise<number> {
+    try {
+      const localBooksCount = await this.getLocalBooksCount();
+      const apiBooksCount = await this.getAPIBooksCount();
+      
+      return localBooksCount + apiBooksCount;  // Sumar los totales
+    } catch (error) {
+      console.error('Error al calcular el total de libros:', error.message);
+      throw new Error('Error al calcular el total de libros');
+    }
+  }
+
+  async getLocalBooksCount(): Promise<number> {
+    return await this.prisma.book.count(); // Cuenta libros en la base de datos local
+  }
+
+  async getAPIBooksCount(): Promise<number> {
+    try {
+      const response = await lastValueFrom(this.httpService.get('https://gutendex.com/books/?page=1'));
+      // Retornamos solo el campo 'count' de la respuesta
+      return response.data.count || 0;  // Si count es undefined, devolvemos 0
+    } catch (error) {
+      console.error('Error al obtener los libros de la API externa:', error.message);
+      throw new Error('Error al obtener el número total de libros de la API externa');
+    }
+  }
   async getAllBooks(page: number, limit: number): Promise<{ books: Book[] }> {
     try {
       const skip = (page - 1) * limit;
-  
-      // Obtener los libros paginados
+
       const books = await this.prisma.book.findMany({
         where: { isDeleted: false },
         skip: skip,
         take: limit,
-        include: {
-          categories: true, // Asegúrate de que esta relación exista en tu modelo
-        },
+        include: { categories: true },
       });
-  
-      return { books }; // Devuelve solo el array de libros
+
+      return { books };
     } catch (error) {
       throw new InternalServerErrorException('No se pudieron recuperar los libros');
     }
   }
-  
-  
+
   async getBookById(book_id: number): Promise<Book | null> {
     try {
       const book = await this.prisma.book.findUnique({
